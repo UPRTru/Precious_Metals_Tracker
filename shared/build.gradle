@@ -1,0 +1,10 @@
+jar {
+    enabled = true
+}
+bootJar {
+    enabled = false
+}
+
+dependencies {
+    implementation 'com.fasterxml.jackson.core:jackson-annotations'
+}

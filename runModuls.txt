@@ -1,0 +1,13 @@
+./gradlew :user-service:bootRun
+./gradlew :metal-price-service:bootRun
+./gradlew :currency-price-service:bootRun
+./gradlew :gateway-service:bootRun
+
+Соберите JAR-файлы:
+./gradlew clean bootJar
+
+валюты
+GET https://api.sberbank.ru/prod/hackathon/public/info/currencyRates
+
+металлы
+GET https://api.sberbank.ru/prod/hackathon/public/info/metalRates

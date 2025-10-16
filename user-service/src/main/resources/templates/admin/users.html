@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+>
+<head>
+    <meta charset="UTF-8">
+    <title>Админка — Пользователи</title>
+    <style>
+        body {
+            font-family: Arial,
+            padding: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .trigger-btn {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<h1>Админка: Пользователи</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>Email</th>
+        <th>Настройки отслеживания</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${users}">
+        <td th:text="${user.email}">user@example.com</td>
+            <td>
+                <form th:action="@{/admin/users/{email}/preferences(email=${user.email})}" method="post">
+                    <textarea name="preferencesJson" rows="4" cols="50"
+                        th:text="${#json.write(user.preferences)}">prefs</textarea><br/>
+                    <button type="submit">Сохранить</button>
+                </form>
+            </td>
+        <td>
+            <form th:action="@{/admin/trigger-check}" method="post">
+                <input type="hidden" name="email" th:value="${user.email}"/>
+                <button type="submit" class="trigger-btn">Проверить цены</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<a href="/logout">Выйти</a>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+rootProject.name = 'precious-metals-tracker'
+
+include 'gateway-service'
+include 'user-service'
+include 'metal-price-service'
+include 'currency-price-service'
+include 'shared'
+include 'shared'
+

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>График цен</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, padding: 20px; }
+        .controls { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+<h1>График цен</h1>
+
+<div class="controls">
+    <form>
+        <label>Тип:
+            <select name="type" onchange="this.form.submit()">
+                <option value="metal" th:selected="${type == 'metal'}">Металл</option>
+                <option value="currency" th:selected="${type == 'currency'}">Валюта</option>
+            </select>
+        </label>
+        <label>Актив:
+            <select name="asset" onchange="this.form.submit()">
+                <option value="GOLD" th:selected="${asset == 'GOLD'}">Золото</option>
+                <option value="SILVER" th:selected="${asset == 'SILVER'}">Серебро</option>
+                <option value="PLATINUM" th:selected="${asset == 'PLATINUM'}">Платина</option>
+                <option value="USD" th:selected="${asset == 'USD'}">USD</option>
+                <option value="EUR" th:selected="${asset == 'EUR'}">EUR</option>
+            </select>
+        </label>
+    </form>
+</div>
+
+<canvas id="priceChart" width="800" height="400"></canvas>
+
+<script>
+    const ctx = document.getElementById('priceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: /*[[${dates}]]*/ [],
+            datasets: [{
+                label: 'Цена (₽)',
+                data: /*[[${prices}]]*/ [],
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: { title: { display: true, text: 'Дата' } },
+                y: { title: { display: true, text: 'Цена, ₽' } }
+            }
+        }
+    });
+</script>
+
+<a href="/admin/users">← Назад к пользователям</a>
+</body>
+</html>
