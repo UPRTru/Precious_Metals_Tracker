@@ -2,6 +2,7 @@ package com.precious.metal.controller;
 
 import com.precious.metal.service.MetalPriceService;
 import com.precious.shared.dto.PriceCheckResult;
+import com.precious.shared.model.CurrentPrice;
 import com.precious.shared.model.Metal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,13 +22,7 @@ public class PriceCheckRestController {
         this.metalPriceService = metalPriceService;
     }
 
-    // Для тестирования через браузер
     @GetMapping("/check")
-//    public PriceCheckResult check(
-//            @RequestParam String metal,
-//            @RequestParam double target,
-//            @RequestParam String operation
-//    )
     @Operation(summary = "Проверить текущую цену на металл")
     @ApiResponse(responseCode = "200", description = "Результат проверки", content = @Content(schema = @Schema(implementation = PriceCheckResult.class)))
     public PriceCheckResult check(
@@ -37,8 +32,8 @@ public class PriceCheckRestController {
     ) {
         Metal m = Metal.valueOf(metal.toUpperCase());
         double current = "buy".equals(operation)
-                ? metalPriceService.getCurrentBuyPrice(m)
-                : metalPriceService.getCurrentSellPrice(m);
+                ? metalPriceService.getCurrentPrice(m, CurrentPrice.BUY)
+                : metalPriceService.getCurrentPrice(m, CurrentPrice.SELL);
         boolean matches = "buy".equals(operation) ? current <= target : current >= target;
         return new PriceCheckResult(m.getDisplayName(), current, target, matches, operation, "test@example.com");
     }

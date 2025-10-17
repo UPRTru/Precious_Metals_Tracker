@@ -1,6 +1,7 @@
 package com.precious.metal.service;
 
 import com.precious.metal.client.SberbankMetalClient;
+import com.precious.shared.model.CurrentPrice;
 import com.precious.shared.model.Metal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,36 +24,18 @@ public class MetalPriceService {
         this.sberbankClient = sberbankClient;
     }
 
-    public double getCurrentBuyPrice(Metal metal) {
+    public double getCurrentPrice(Metal metal, CurrentPrice currentPrice) {
         // Попытка получить из Сбербанка, иначе fallback
         try {
-            return sberbankClient.getCurrentBuyPrice(metal.getDisplayName())
+            double result = sberbankClient.getCurrentBuyPrice(metal.getDisplayName(), currentPrice)
                     .block(Duration.ofSeconds(3));
+            if (result != 0.0) {
+                return result;
+            }
         } catch (Exception e) {
-            log.warn("Сбербанк API недоступен, используем эмуляцию", e);
-            return getFallbackPrice(metal);
+            log.warn("Сбербанк API недоступен", e);
         }
-    }
-
-    private double getFallbackPrice(Metal metal) {
-        return switch (metal) {
-            case GOLD -> 6500 + random.nextGaussian() * 100;
-            case SILVER -> 85 + random.nextGaussian() * 5;
-            case PLATINUM -> 2200 + random.nextGaussian() * 50;
-        };
-    }
-
-    // Эмуляция текущих цен (в рублях за грамм)
-//    public double getCurrentBuyPrice(Metal metal) {
-//        return switch (metal) {
-//            case GOLD -> 6500 + random.nextGaussian() * 100;
-//            case SILVER -> 85 + random.nextGaussian() * 5;
-//            case PLATINUM -> 2200 + random.nextGaussian() * 50;
-//        };
-//    }
-
-    public double getCurrentSellPrice(Metal metal) {
-        return getCurrentBuyPrice(metal) * 0.97; // банк покупает дешевле
+        throw new RuntimeException("Не удалось получить цену металла"); //заменить на свою ошибку
     }
 
     // Эмуляция истории за последние 30 дней

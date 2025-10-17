@@ -1,11 +1,10 @@
 package com.precious.metal.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.precious.shared.model.CurrentPrice;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
-import java.time.Duration;
 
 @Component
 public class SberbankMetalClient {
@@ -14,18 +13,37 @@ public class SberbankMetalClient {
 
     public SberbankMetalClient() {
         this.webClient = WebClient.builder()
+//        https://www.sberbank.ru/ru/person/metall?metal=A98 золото 1г
+//        https://www.sberbank.ru/ru/person/metall?metal=A99 серебро 50г
+//        https://www.sberbank.ru/ru/person/metall?metal=A76 платина 5г
+//        https://www.sberbank.ru/ru/person/metall?metal=A33 палладий 5г
+                /*
+                покупка
+                * rates-ingots-table__tr
+                * rates-ingots-table__td
+                * dk-sbol-text dk-sbol-text_size_body2 rates-ingots-table__text
+                * 12 609,00 ₽
+                * */
+
+                /*
+                продажа
+                * rates-ingots-table__tr
+                * rates-ingots-table__td
+                * dk-sbol-text dk-sbol-text_size_body2 rates-ingots-table__text
+                * 10 664,00 ₽
+                * */
+
                 .baseUrl("https://api.sberbank.ru/prod/hackathon/public/info")
                 .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(1024 * 1024))
                 .build();
     }
 
-    private Mono<Double> extractPriceFromResponse(JsonNode response, String metalDisplayName) {
+    private Mono<MetalItem> extractPriceFromResponse(JsonNode response, String metalDisplayName) {
         var rates = response.path("metalRates");
         for (JsonNode rate : rates) {
             String nameInResponse = rate.path("name").asText();
-            // Сопоставляем displayName (например, "золото") с ответом ("Золото")
             if (matchesMetal(nameInResponse, metalDisplayName)) {
-                return Mono.just(rate.path("buy").asDouble());
+                return Mono.just(new MetalItem(metalDisplayName, rate.path("buy").asDouble(), rate.path("sell").asDouble()));
             }
         }
         return Mono.error(new RuntimeException("Металл не найден: " + metalDisplayName));
@@ -40,13 +58,17 @@ public class SberbankMetalClient {
         };
     }
 
-    public Mono<Double> getCurrentBuyPrice(String metalDisplayName) {
+    public Mono<Double> getCurrentBuyPrice(String metalDisplayName, CurrentPrice currentPrice) {
         return webClient.get()
                 .uri("/metalRates")
                 .retrieve()
                 .bodyToMono(JsonNode.class)
                 .flatMap(response -> extractPriceFromResponse(response, metalDisplayName)) // ← передаём параметр
-                .onErrorReturn(getFallbackPrice(metalDisplayName));
+                .map(m -> switch (currentPrice) {
+                    case BUY -> m.getBuy();
+                    case SELL -> m.getSell();
+                })
+                .onErrorReturn(0.0);
     }
 
     private Mono<Double> extractPriceFromResponse(JsonNode response) {
@@ -62,12 +84,19 @@ public class SberbankMetalClient {
         return Mono.error(new RuntimeException("Металл не найден"));
     }
 
-    private double getFallbackPrice(String metalDisplayName) {
-        return switch (metalDisplayName.toLowerCase()) {
-            case "золото" -> 6500.0;
-            case "серебро" -> 85.0;
-            case "платина" -> 2200.0;
-            default -> 0.0;
-        };
+    private static class MetalItem {
+        private final String name;
+        private double buy;
+        private double sell;
+
+        public MetalItem(String name, double buy, double sell) {
+            this.name = name;
+            this.buy = buy;
+            this.sell = sell;
+        }
+
+        public String getName() { return name; }
+        public double getBuy() { return buy; }
+        public double getSell() { return sell; }
     }
 }
