@@ -16,7 +16,7 @@ public class SberbankCurrencyClient {
 
     public SberbankCurrencyClient() {
         this.webClient = WebClient.builder()
-                //https://www.sberbank.ru/ru/quotes/currencies?tab=sbol
+                //https://www.sberbank.ru/ru/quotes/currencies?tab=sbol - правильная ссылка, нежно разобраться как брать данные
                 .baseUrl("https://api.sberbank.ru/prod/hackathon/public/info")
                 .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(1024 * 1024))
                 .clientConnector(new ReactorClientHttpConnector(

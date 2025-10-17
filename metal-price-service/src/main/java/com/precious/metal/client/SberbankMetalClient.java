@@ -13,29 +13,7 @@ public class SberbankMetalClient {
 
     public SberbankMetalClient() {
         this.webClient = WebClient.builder()
-                //https://www.sberbank.ru/retail/ru/quotes/metalbeznal - все металлы + архивы котировок + история курсов
-
-
-//        https://www.sberbank.ru/ru/person/metall?metal=A98 золото 1г
-//        https://www.sberbank.ru/ru/person/metall?metal=A99 серебро 50г
-//        https://www.sberbank.ru/ru/person/metall?metal=A76 платина 5г
-//        https://www.sberbank.ru/ru/person/metall?metal=A33 палладий 5г
-                /*
-                покупка
-                * rates-ingots-table__tr
-                * rates-ingots-table__td
-                * dk-sbol-text dk-sbol-text_size_body2 rates-ingots-table__text
-                * 12 609,00 ₽
-                * */
-
-                /*
-                продажа
-                * rates-ingots-table__tr
-                * rates-ingots-table__td
-                * dk-sbol-text dk-sbol-text_size_body2 rates-ingots-table__text
-                * 10 664,00 ₽
-                * */
-
+                //https://www.sberbank.ru/retail/ru/quotes/metalbeznal - правильная ссылка, нежно разобраться как брать данные
                 .baseUrl("https://api.sberbank.ru/prod/hackathon/public/info")
                 .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(1024 * 1024))
                 .build();
