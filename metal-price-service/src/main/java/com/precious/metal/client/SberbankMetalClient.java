@@ -13,6 +13,9 @@ public class SberbankMetalClient {
 
     public SberbankMetalClient() {
         this.webClient = WebClient.builder()
+                //https://www.sberbank.ru/retail/ru/quotes/metalbeznal - все металлы + архивы котировок + история курсов
+
+
 //        https://www.sberbank.ru/ru/person/metall?metal=A98 золото 1г
 //        https://www.sberbank.ru/ru/person/metall?metal=A99 серебро 50г
 //        https://www.sberbank.ru/ru/person/metall?metal=A76 платина 5г
