@@ -1,59 +1,49 @@
 package com.precious.metal.service;
 
 import com.precious.metal.client.SberbankMetalClient;
-import com.precious.shared.model.CurrentPrice;
-import com.precious.shared.model.Metal;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.precious.metal.model.MetalPrice;
+import com.precious.metal.repository.MetalPriceRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Map;
-import java.util.Random;
 
 @Service
 public class MetalPriceService {
-    private static final Logger log = LoggerFactory.getLogger(MetalPriceService.class);
-    private final SberbankMetalClient sberbankClient;
-    private final Random random;
 
-    public MetalPriceService(SberbankMetalClient sberbankClient) {
-        this.random = new Random(42);
-        this.sberbankClient = sberbankClient;
+    private final SberbankMetalClient client;
+    private final MetalPriceRepository repository;
+
+    public MetalPriceService(SberbankMetalClient client, MetalPriceRepository repository) {
+        this.client = client;
+        this.repository = repository;
     }
 
-    public double getCurrentPrice(Metal metal, CurrentPrice currentPrice) {
-        // Попытка получить из Сбербанка, иначе fallback
+    @Transactional
+    public void fetchAndSaveIfChanged() {
         try {
-            double result = sberbankClient.getCurrentBuyPrice(metal.getDisplayName(), currentPrice)
-                    .block(Duration.ofSeconds(3));
-            if (result != 0.0) {
-                return result;
+            Map<String, SberbankMetalClient.MetalPriceData> current = client.fetchCurrentPrices();
+
+            for (Map.Entry<String, SberbankMetalClient.MetalPriceData> entry : current.entrySet()) {
+                String metalName = entry.getKey();
+                var data = entry.getValue();
+
+                var latest = repository.findLatestByMetalName(metalName);
+
+                MetalPrice newPrice = new MetalPrice(metalName, data.getBuyPrice(), data.getSellPrice());
+
+                if (latest.isEmpty() || !latest.get().equals(newPrice)) {
+                    repository.save(newPrice);
+                }
             }
-        } catch (Exception e) {
-            log.warn("Сбербанк API недоступен", e);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to fetch metal prices from Sberbank", e);
         }
-        throw new RuntimeException("Не удалось получить цену металла"); //заменить на свою ошибку
     }
 
-    // Эмуляция истории за последние 30 дней
-    public Map<LocalDate, Double> getHistory(Metal metal, LocalDate from, LocalDate to) {
-        Map<LocalDate, Double> history = new HashMap<>();
-        LocalDate current = from;
-        double basePrice = switch (metal) {
-            case GOLD -> 6400;
-            case SILVER -> 80;
-            case PLATINUM -> 2100;
-        };
-
-        while (!current.isAfter(to)) {
-            double variation = (random.nextDouble() - 0.5) * 200; // ±100
-            if (metal == Metal.SILVER) variation /= 10;
-            history.put(current, basePrice + variation);
-            current = current.plusDays(1);
-        }
-        return history;
+    public MetalPrice getLatestPrice(String metalName) {
+        return repository.findLatestByMetalName(metalName)
+                .orElseThrow(() -> new IllegalArgumentException("No price found for metal: " + metalName));
     }
 }

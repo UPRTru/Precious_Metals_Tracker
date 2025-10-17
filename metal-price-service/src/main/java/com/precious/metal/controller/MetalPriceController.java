@@ -1,39 +1,36 @@
 package com.precious.metal.controller;
 
+import com.precious.metal.model.MetalPrice;
+import com.precious.metal.repository.MetalPriceRepository;
 import com.precious.metal.service.MetalPriceService;
-import com.precious.shared.model.Metal;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.List;
 
-@Controller
+@RestController
+@RequestMapping("/api/metals")
 public class MetalPriceController {
 
-    private final MetalPriceService metalPriceService;
+    private final MetalPriceService priceService;
+    private final MetalPriceRepository repository;
 
-    public MetalPriceController(MetalPriceService metalPriceService) {
-        this.metalPriceService = metalPriceService;
+    public MetalPriceController(MetalPriceService priceService, MetalPriceRepository repository) {
+        this.priceService = priceService;
+        this.repository = repository;
     }
 
-    @GetMapping("/widget")
-    public String widget() {
-        return "widget";
+    @GetMapping("/latest/{metalName}")
+    public MetalPrice getLatest(@PathVariable String metalName) {
+        return priceService.getLatestPrice(metalName);
     }
 
-    @GetMapping("/history")
-    @ResponseBody
-    public Map<LocalDate, Double> getHistory(
-            @RequestParam String metal,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to
-    ) {
-        Metal metalEnum = Metal.valueOf(metal.toUpperCase());
-        return metalPriceService.getHistory(metalEnum, from, to);
+    @GetMapping("/history/{metalName}")
+    public List<MetalPrice> getHistory(
+            @PathVariable String metalName,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to) {
+        return repository.findByMetalNameAndTimestampBetweenOrderByTimestampAsc(metalName, from, to);
     }
 }

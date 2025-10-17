@@ -1,87 +1,71 @@
 package com.precious.metal.client;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.precious.shared.model.CurrentPrice;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class SberbankMetalClient {
 
-    private static final Logger log = LoggerFactory.getLogger(SberbankMetalClient.class);
-    private static final String METAL_URL = "https://www.sberbank.ru/retail/ru/quotes/metalbeznal?tab=online";
+    @Value("${app.sberbank.metal.url}")
+    private String METAL_URL;
 
-    private final WebClient webClient;
+    // Пример структуры: <tr><td>Золото</td><td>6500.50</td><td>6300.20</td></tr>
+    public Map<String, MetalPriceData> fetchCurrentPrices() throws IOException {
+        Document doc = Jsoup.connect(METAL_URL)
+                .userAgent("Mozilla/5.0")
+                .timeout(10_000)
+                .get();
 
-    public SberbankMetalClient() {
-        this.webClient = WebClient.builder()
-                .baseUrl("https://api.sberbank.ru/prod/hackathon/public/info")
-                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(1024 * 1024))
-                .build();
-    }
+        Map<String, MetalPriceData> prices = new HashMap<>();
 
-    private Mono<MetalItem> extractPriceFromResponse(JsonNode response, String metalDisplayName) {
-        var rates = response.path("metalRates");
-        for (JsonNode rate : rates) {
-            String nameInResponse = rate.path("name").asText();
-            if (matchesMetal(nameInResponse, metalDisplayName)) {
-                return Mono.just(new MetalItem(metalDisplayName, rate.path("buy").asDouble(), rate.path("sell").asDouble()));
+        // Находим таблицу — адаптируйте селектор под реальную страницу
+        Elements rows = doc.select("table tr");
+
+        for (Element row : rows) {
+            Elements cols = row.select("td");
+            if (cols.size() < 3) continue;
+
+            String name = cols.get(0).text().trim();
+            if (name.isEmpty()) continue;
+
+            try {
+                BigDecimal buy = parsePrice(cols.get(1).text());
+                BigDecimal sell = parsePrice(cols.get(2).text());
+                prices.put(name, new MetalPriceData(buy, sell));
+            } catch (Exception e) {
+                // Логируем и пропускаем некорректные строки
+                System.err.println("Failed to parse row: " + cols.text() + " | Error: " + e.getMessage());
             }
         }
-        return Mono.error(new RuntimeException("Металл не найден: " + metalDisplayName));
+
+        return prices;
     }
 
-    private boolean matchesMetal(String apiName, String displayName) {
-        return switch (displayName.toLowerCase()) {
-            case "золото" -> apiName.equalsIgnoreCase("Золото");
-            case "серебро" -> apiName.equalsIgnoreCase("Серебро");
-            case "платина" -> apiName.equalsIgnoreCase("Платина");
-            default -> false;
-        };
+    private BigDecimal parsePrice(String text) {
+        // Убираем всё кроме цифр и точки/запятой
+        String clean = text.replaceAll("[^\\d,\\.]", "").replace(',', '.');
+        return new BigDecimal(clean);
     }
 
-    public Mono<Double> getCurrentBuyPrice(String metalDisplayName, CurrentPrice currentPrice) {
-        return webClient.get()
-                .uri("/metalRates")
-                .retrieve()
-                .bodyToMono(JsonNode.class)
-                .flatMap(response -> extractPriceFromResponse(response, metalDisplayName)) // ← передаём параметр
-                .map(m -> switch (currentPrice) {
-                    case BUY -> m.getBuy();
-                    case SELL -> m.getSell();
-                })
-                .onErrorReturn(0.0);
-    }
+    public static class MetalPriceData {
+        private final BigDecimal buyPrice;
+        private final BigDecimal sellPrice;
 
-    private Mono<Double> extractPriceFromResponse(JsonNode response) {
-        // Пример структуры:
-        // { "metalRates": [ { "name": "Золото", "buy": 6500.5, "sell": 6400.0 } ] }
-        var rates = response.path("metalRates");
-        for (JsonNode rate : rates) {
-            if (rate.path("name").asText().equalsIgnoreCase("Золото") && "золото".equalsIgnoreCase("золото")) {
-                return Mono.just(rate.path("buy").asDouble());
-            }
-            // Добавьте другие металлы по аналогии
-        }
-        return Mono.error(new RuntimeException("Металл не найден"));
-    }
-
-    private static class MetalItem {
-        private final String name;
-        private double buy;
-        private double sell;
-
-        public MetalItem(String name, double buy, double sell) {
-            this.name = name;
-            this.buy = buy;
-            this.sell = sell;
+        public MetalPriceData(BigDecimal buyPrice, BigDecimal sellPrice) {
+            this.buyPrice = buyPrice;
+            this.sellPrice = sellPrice;
         }
 
-        public String getName() { return name; }
-        public double getBuy() { return buy; }
-        public double getSell() { return sell; }
+        public BigDecimal getBuyPrice() { return buyPrice; }
+        public BigDecimal getSellPrice() { return sellPrice; }
     }
 }
