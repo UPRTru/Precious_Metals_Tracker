@@ -1,6 +1,8 @@
 package com.precious.currency.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,11 +14,13 @@ import java.time.Duration;
 @Component
 public class SberbankCurrencyClient {
 
+    private static final Logger log = LoggerFactory.getLogger(SberbankCurrencyClient.class);
+    private static final String CURRENCY_URL = "https://www.sberbank.ru/ru/quotes/currencies?tab=sbol";
+
     private final WebClient webClient;
 
     public SberbankCurrencyClient() {
         this.webClient = WebClient.builder()
-                //https://www.sberbank.ru/ru/quotes/currencies?tab=sbol - правильная ссылка, нежно разобраться как брать данные
                 .baseUrl("https://api.sberbank.ru/prod/hackathon/public/info")
                 .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(1024 * 1024))
                 .clientConnector(new ReactorClientHttpConnector(
