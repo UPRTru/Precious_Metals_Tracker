@@ -16,7 +16,7 @@ public class SberMetalParser {
         //xpath = //div[contains(@class, 'rfn-table-currency__iso') and text()='Золото']/ancestor::div[contains(@class, 'rfn-table-row')]//div[contains(@class, 'rfn-table-row__price_main')]//div[contains(@class, 'rfn-table-row__col')][2]/text()
         // Укажите путь к chromedriver.exe (Windows) или chromedriver (macOS/Linux)
         // Если он в PATH — можно не указывать
-         System.setProperty("webdriver.chrome.driver", "C:/chrome-win64");
+         System.setProperty("webdriver.chrome.driver", "C:/chrome-win64/chromedriver.exe");
 
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new"); // запуск без GUI (можно убрать для отладки)
