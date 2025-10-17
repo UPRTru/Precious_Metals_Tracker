@@ -30,3 +30,4 @@ app:
   sberbank:
     metal:
       url: "https://www.sberbank.ru/retail/ru/quotes/metalbeznal?tab=online"
+      ..https://1000bankov.ru/kurs/gld/
