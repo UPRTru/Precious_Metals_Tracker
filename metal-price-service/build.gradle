@@ -10,4 +10,5 @@ dependencies {
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'
     implementation 'org.seleniumhq.selenium:selenium-java:4.23.0'
+    implementation("net.minidev:json-smart:2.6.0")
 }

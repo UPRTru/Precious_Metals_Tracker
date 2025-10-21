@@ -1,9 +1,9 @@
 package com.precious.shared.model;
 
 public enum Metal {
-    GOLD("золото"),
-    SILVER("серебро"),
-    PLATINUM("платина"),
+    GOLD("Золото"),
+    SILVER("Серебро"),
+    PLATINUM("Платина"),
     PALLADIUM("Палладий");
 
     private final String displayName;
