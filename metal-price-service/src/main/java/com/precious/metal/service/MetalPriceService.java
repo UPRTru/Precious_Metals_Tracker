@@ -1,20 +1,17 @@
 package com.precious.metal.service;
 
-import com.precious.metal.client.ByOrSell;
 import com.precious.metal.client.SberMetalParser;
 import com.precious.metal.model.MetalPrice;
 import com.precious.metal.repository.MetalPriceRepository;
+import com.precious.shared.model.CurrentPrice;
 import com.precious.shared.model.Metal;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 @Service
 public class MetalPriceService {
@@ -39,9 +36,9 @@ public class MetalPriceService {
 
             for (Object o : data) {
                 String value = ((JSONObject) o).toJSONString();
-                if (value.contains(ByOrSell.BUY.name())) {
+                if (value.contains(CurrentPrice.BUY.name())) {
                     buyPrice = parsePrice(value);
-                } else if (value.contains(ByOrSell.SELL.name())) {
+                } else if (value.contains(CurrentPrice.SELL.name())) {
                     sellPrice = parsePrice(value);
                 }
             }

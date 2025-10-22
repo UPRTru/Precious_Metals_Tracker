@@ -13,6 +13,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
+import java.math.BigDecimal;
+
 @RestController
 public class PriceCheckRestController {
 
@@ -31,8 +33,8 @@ public class PriceCheckRestController {
             @Parameter(description = "Операция: buy или sell") @RequestParam String operation
     ) {
         Metal m = Metal.valueOf(metal.toUpperCase());
-        double current = "buy".equals(operation)
-                ? metalPriceService.getCurrentPrice(m, CurrentPrice.BUY)
+        BigDecimal current = "buy".equals(operation)
+                ? metalPriceService..getCurrentPrice(m, CurrentPrice.BUY)
                 : metalPriceService.getCurrentPrice(m, CurrentPrice.SELL);
         boolean matches = "buy".equals(operation) ? current <= target : current >= target;
         return new PriceCheckResult(m.getDisplayName(), current, target, matches, operation, "test@example.com");

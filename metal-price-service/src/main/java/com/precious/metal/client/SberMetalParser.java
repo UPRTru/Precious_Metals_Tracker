@@ -1,5 +1,6 @@
 package com.precious.metal.client;
 
+import com.precious.shared.model.CurrentPrice;
 import com.precious.shared.model.Metal;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -82,21 +83,21 @@ public class SberMetalParser {
 
     private HashMap<Metal, JSONArray> getMetalPrices(Metal metal) {
         JSONArray jsonArray = new JSONArray();
-        jsonArray.add(getJsonMetalPrice(metal, webDriver, ByOrSell.BUY));
-        jsonArray.add(getJsonMetalPrice(metal, webDriver, ByOrSell.SELL));
+        jsonArray.add(getJsonMetalPrice(metal, webDriver, CurrentPrice.BUY));
+        jsonArray.add(getJsonMetalPrice(metal, webDriver, CurrentPrice.SELL));
         HashMap<Metal, JSONArray> result = new HashMap<>();
         result.put(metal, jsonArray);
         return result;
     }
 
-    private JSONObject getJsonMetalPrice(Metal metal, WebDriverWait webDriver, ByOrSell byOrSell) {
-        WebElement webElement = getWebElement(metal, webDriver, byOrSell);
+    private JSONObject getJsonMetalPrice(Metal metal, WebDriverWait webDriver, CurrentPrice currentPrice) {
+        WebElement webElement = getWebElement(metal, webDriver, currentPrice);
         Map<String, String> map = new HashMap<>();
-        map.put(byOrSell.name(), webElement.getText());
+        map.put(currentPrice.name(), webElement.getText());
         return new JSONObject(map);
     }
 
-    private WebElement getWebElement(Metal metal, WebDriverWait webDriver, ByOrSell byOrSell) {
+    private WebElement getWebElement(Metal metal, WebDriverWait webDriver, CurrentPrice currentPrice) {
         return webDriver.until(
                 ExpectedConditions.presenceOfElementLocated(
                         By.xpath("//div[contains(@class, 'rfn-table-currency__iso') and text()='"
@@ -104,7 +105,7 @@ public class SberMetalParser {
                                 + "']/ancestor::div[contains(@class, 'rfn-table-row')]" +
                                 "//div[contains(@class, 'rfn-table-row__price_main')]" +
                                 "//div[contains(@class, 'rfn-table-row__col')]["
-                                + byOrSell.getIndex() + "]")
+                                + currentPrice.getIndex() + "]")
                 )
         );
     }

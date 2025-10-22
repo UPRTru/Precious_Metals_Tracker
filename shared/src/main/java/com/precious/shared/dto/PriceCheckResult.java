@@ -1,20 +1,21 @@
 package com.precious.shared.dto;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Objects;
 
 public class PriceCheckResult implements Serializable {
     private static final long serialVersionUID = 1L;
     private final String assetName;
-    private final double currentPrice;
-    private final double targetPrice;
+    private final BigDecimal currentPrice;
+    private final BigDecimal targetPrice;
     private final boolean matches;
     private final String operation;
     private final Instant timestamp;
     private final String userEmail; // для отправки уведомления
 
-    public PriceCheckResult(String assetName, double currentPrice, double targetPrice,
+    public PriceCheckResult(String assetName, BigDecimal currentPrice, BigDecimal targetPrice,
                             boolean matches, String operation, String userEmail) {
         this.assetName = Objects.requireNonNull(assetName);
         this.currentPrice = Objects.requireNonNull(currentPrice);
@@ -28,9 +29,9 @@ public class PriceCheckResult implements Serializable {
     // Getters & Setters
     public String getAssetName() { return assetName; }
 
-    public double getCurrentPrice() { return currentPrice; }
+    public BigDecimal getCurrentPrice() { return currentPrice; }
 
-    public double getTargetPrice() { return targetPrice; }
+    public BigDecimal getTargetPrice() { return targetPrice; }
 
     public boolean isMatches() { return matches; }
 
