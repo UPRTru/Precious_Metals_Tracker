@@ -1,17 +1,17 @@
-package com.precious.metal.controller;
+package controller;
 
-import com.precious.metal.service.MetalPriceService;
+import service.MetalPriceService;
 import com.precious.shared.dto.PriceCheckResult;
 import com.precious.shared.model.CurrentPrice;
 import com.precious.shared.model.Metal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 

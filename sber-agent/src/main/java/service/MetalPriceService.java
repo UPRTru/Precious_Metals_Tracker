@@ -1,0 +1,65 @@
+package service;
+
+import agent.MetalSberAgent;
+import model.MetalPrice;
+import repository.MetalPriceRepository;
+import com.precious.shared.model.CurrentPrice;
+import com.precious.shared.model.Metal;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.Map;
+
+@Service
+public class MetalPriceService {
+
+    private final MetalSberAgent sberAgent;
+    private final MetalPriceRepository repository;
+
+    public MetalPriceService(MetalSberAgent sberAgent, MetalPriceRepository repository) {
+        this.sberAgent = sberAgent;
+        this.repository = repository;
+    }
+
+    @Transactional
+    public void fetchAndSaveIfChanged() {
+        Map<Metal, JSONArray> current = sberAgent.getPrices();
+        for (Map.Entry<Metal, JSONArray> entry : current.entrySet()) {
+            String metalName = entry.getKey().getDisplayName();
+            JSONArray data = entry.getValue();
+
+            BigDecimal buyPrice = null;
+            BigDecimal sellPrice = null;
+
+            for (Object o : data) {
+                String value = ((JSONObject) o).toJSONString();
+                if (value.contains(CurrentPrice.BUY.name())) {
+                    buyPrice = parsePrice(value);
+                } else if (value.contains(CurrentPrice.SELL.name())) {
+                    sellPrice = parsePrice(value);
+                }
+            }
+
+            var latest = repository.findLatestByMetalName(metalName);
+
+            MetalPrice newPrice = new MetalPrice(metalName, buyPrice, sellPrice);
+
+            if (latest.isEmpty() || !latest.get().equals(newPrice)) {
+                repository.save(newPrice);
+            }
+        }
+    }
+
+    public MetalPrice getLatestPrice(String metalName) {
+        return repository.findLatestByMetalName(metalName)
+                .orElseThrow(() -> new IllegalArgumentException("No price found for metal: " + metalName));
+    }
+
+    private BigDecimal parsePrice(String text) {
+        String clean = text.replaceAll("[^\\d,\\.]", "").replace(',', '.');
+        return new BigDecimal(clean);
+    }
+}

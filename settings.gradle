@@ -6,4 +6,5 @@ include 'metal-price-service'
 include 'currency-price-service'
 include 'shared'
 include 'shared'
+include 'sber-agent'
 
