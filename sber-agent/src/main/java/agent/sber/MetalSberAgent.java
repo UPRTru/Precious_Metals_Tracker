@@ -1,8 +1,8 @@
-package agent;
+package agent.sber;
 
+import agent.Agent;
 import com.precious.shared.model.CurrentPrice;
 import com.precious.shared.model.Metal;
-import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -13,18 +13,18 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import utils.JsonUtils;
 
 import java.time.Duration;
 import java.util.HashMap;
-import java.util.Map;
 
 @Component
-public class MetalSberAgent implements SberAgent {
+public class MetalSberAgent implements Agent {
 
     @Value("C:/chrome-win64/chromedriver.exe")
     private String CHROME_DRIVER_PATH;
-    private String url;
-    private ChromeOptions options;
+    private final String url;
+    private final ChromeOptions options;
     private WebDriver driver;
     private WebDriverWait webDriver;
 
@@ -43,10 +43,10 @@ public class MetalSberAgent implements SberAgent {
     }
 
     @Override
-    public HashMap<Metal, JSONArray> getPrices() {
+    public HashMap<String, JSONObject> getPrices() {
         createDriver();
         goToPage();
-        HashMap<Metal, JSONArray> result = getMetalsPrices();
+        HashMap<String, JSONObject> result = getMetalsPrices();
         closeDriver();
         return result;
     }
@@ -65,32 +65,29 @@ public class MetalSberAgent implements SberAgent {
         driver.quit();
     }
 
-    private HashMap<Metal, JSONArray> getMetalsPrices() {
-        HashMap<Metal, JSONArray> result = new HashMap<>();
+    private HashMap<String, JSONObject> getMetalsPrices() {
+        HashMap<String, JSONObject> result = new HashMap<>();
         for (Metal metal : Metal.values()) {
-            HashMap<Metal, JSONArray> metalPrices = getMetalPrices(metal);
-            result.putAll(metalPrices);
+            result.putAll(getMetalPrices(metal));
         }
         return result;
     }
 
-    private HashMap<Metal, JSONArray> getMetalPrices(Metal metal) {
-        JSONArray jsonArray = new JSONArray();
-        jsonArray.add(getJsonMetalPrice(metal, webDriver, CurrentPrice.BUY));
-        jsonArray.add(getJsonMetalPrice(metal, webDriver, CurrentPrice.SELL));
-        HashMap<Metal, JSONArray> result = new HashMap<>();
-        result.put(metal, jsonArray);
+    private HashMap<String, JSONObject> getMetalPrices(Metal metal) {
+        JSONObject jsonObject = JsonUtils.createJsonObject(metal.name());
+        getJsonMetalPrice(jsonObject, metal, CurrentPrice.BUY);
+        getJsonMetalPrice(jsonObject, metal, CurrentPrice.SELL);
+        HashMap<String, JSONObject> result = new HashMap<>();
+        result.put(metal.name(), jsonObject);
         return result;
     }
 
-    private JSONObject getJsonMetalPrice(Metal metal, WebDriverWait webDriver, CurrentPrice currentPrice) {
-        WebElement webElement = getWebElement(metal, webDriver, currentPrice);
-        Map<String, String> map = new HashMap<>();
-        map.put(currentPrice.name(), webElement.getText());
-        return new JSONObject(map);
+    private void getJsonMetalPrice(JSONObject jsonObject, Metal metal, CurrentPrice currentPrice) {
+        WebElement webElement = getWebElement(metal, currentPrice);
+        JsonUtils.appendPrice(jsonObject, currentPrice, webElement.getText());
     }
 
-    private WebElement getWebElement(Metal metal, WebDriverWait webDriver, CurrentPrice currentPrice) {
+    private WebElement getWebElement(Metal metal, CurrentPrice currentPrice) {
         String index;
         switch (currentPrice) {
             case BUY:

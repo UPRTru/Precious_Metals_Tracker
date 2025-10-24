@@ -19,7 +19,6 @@ public class MetalPriceCheckRequest extends PriceCheckRequest implements Seriali
         this.userEmail = Objects.requireNonNull(userEmail);
     }
 
-    // Getters & Setters
     @Override
     public String getAssetName() {
         return metal.getDisplayName();

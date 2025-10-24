@@ -1,19 +1,20 @@
 package scheduler;
 
-import com.precious.metal.service.MetalPriceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import service.PriceService;
+import service.TypePrice;
 
 @Component
 public class ScheduledPriceUpdater {
 
     private static final Logger log = LoggerFactory.getLogger(ScheduledPriceUpdater.class);
 
-    private final MetalPriceService priceService;
+    private final PriceService priceService;
 
-    public ScheduledPriceUpdater(MetalPriceService priceService) {
+    public ScheduledPriceUpdater(PriceService priceService) {
         this.priceService = priceService;
     }
 
@@ -21,7 +22,8 @@ public class ScheduledPriceUpdater {
     public void updatePrices() {
         log.info("Fetching and updating metal prices...");
         try {
-            priceService.fetchAndSaveIfChanged();
+            priceService.updatePrices(TypePrice.SBER_METAL);
+            priceService.updatePrices(TypePrice.SBER_CURRENCY);
             log.info("Metal prices updated successfully.");
         } catch (Exception e) {
             log.error("Error during price update", e);

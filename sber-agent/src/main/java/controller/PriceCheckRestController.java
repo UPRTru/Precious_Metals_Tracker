@@ -1,6 +1,6 @@
 package controller;
 
-import service.MetalPriceService;
+import service.PriceService;
 import com.precious.shared.dto.PriceCheckResult;
 import com.precious.shared.model.CurrentPrice;
 import com.precious.shared.model.Metal;
@@ -18,25 +18,25 @@ import java.math.BigDecimal;
 @RestController
 public class PriceCheckRestController {
 
-    private final MetalPriceService metalPriceService;
+    private final PriceService priceService;
 
-    public PriceCheckRestController(MetalPriceService metalPriceService) {
-        this.metalPriceService = metalPriceService;
+    public PriceCheckRestController(PriceService priceService) {
+        this.priceService = priceService;
     }
 
-    @GetMapping("/check")
-    @Operation(summary = "Проверить текущую цену на металл")
-    @ApiResponse(responseCode = "200", description = "Результат проверки", content = @Content(schema = @Schema(implementation = PriceCheckResult.class)))
-    public PriceCheckResult check(
-            @Parameter(description = "Название металла: GOLD, SILVER, PLATINUM") @RequestParam String metal,
-            @Parameter(description = "Целевая цена") @RequestParam double target,
-            @Parameter(description = "Операция: buy или sell") @RequestParam String operation
-    ) {
-        Metal m = Metal.valueOf(metal.toUpperCase());
-        BigDecimal current = "buy".equals(operation)
-                ? metalPriceService.getCurrentPrice(m, CurrentPrice.BUY)
-                : metalPriceService.getCurrentPrice(m, CurrentPrice.SELL);
-        boolean matches = "buy".equals(operation) ? current <= target : current >= target;
-        return new PriceCheckResult(m.getDisplayName(), current, target, matches, operation, "test@example.com");
-    }
+//    @GetMapping("/check")
+//    @Operation(summary = "Проверить текущую цену на металл")
+//    @ApiResponse(responseCode = "200", description = "Результат проверки", content = @Content(schema = @Schema(implementation = PriceCheckResult.class)))
+//    public PriceCheckResult check(
+//            @Parameter(description = "Название металла: GOLD, SILVER, PLATINUM") @RequestParam String metal,
+//            @Parameter(description = "Целевая цена") @RequestParam double target,
+//            @Parameter(description = "Операция: buy или sell") @RequestParam CurrentPrice operation
+//    ) {
+//        Metal m = Metal.valueOf(metal.toUpperCase());
+//        BigDecimal current = "buy".equals(operation)
+//                ? priceService.getCurrentPrice(m, CurrentPrice.BUY)
+//                : priceService.getCurrentPrice(m, CurrentPrice.SELL);
+//        boolean matches = "buy".equals(operation) ? current <= target : current >= target;
+//        return new PriceCheckResult(m.getDisplayName(), current, target, matches, operation, "test@example.com");
+//    }
 }

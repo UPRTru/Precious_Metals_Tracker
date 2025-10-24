@@ -1,8 +1,8 @@
-package agent;
+package agent.sber;
 
-import com.precious.shared.model.CurrentPrice;
+import agent.Agent;
 import com.precious.shared.model.Currency;
-import net.minidev.json.JSONArray;
+import com.precious.shared.model.CurrentPrice;
 import net.minidev.json.JSONObject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -13,23 +13,25 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import utils.JsonUtils;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @Component
-public class CurrencySberAgent implements SberAgent {
+public class CurrencySberAgent implements Agent {
 
     @Value("C:/chrome-win64/chromedriver.exe")
     private String CHROME_DRIVER_PATH;
     private String url;
-    private ChromeOptions options;
+    private final ChromeOptions options;
     private WebDriver driver;
     private WebDriverWait webDriver;
+    private final int MAX_COUNT_CURRENCY = 5;
 
     public CurrencySberAgent() {
-        this.url = SberAgentConfig.CURRENCY_URL.getConfig();
         options = new ChromeOptions();
         System.setProperty("webdriver.chrome.driver", CHROME_DRIVER_PATH);
         options.addArguments("--headless=new");
@@ -43,10 +45,25 @@ public class CurrencySberAgent implements SberAgent {
     }
 
     @Override
-    public HashMap<Currency, JSONArray> getPrices() {
+    public HashMap<String, JSONObject> getPrices() {
         createDriver();
-        goToPage();
-        HashMap<Currency, JSONArray> result = getCurrencysPrices();
+        int iterations = Currency.values().length / MAX_COUNT_CURRENCY;
+        int index = 0;
+        HashMap<String, JSONObject> result = new HashMap<>(Currency.values().length);
+        while (iterations > 0) {
+            List<Currency> currencies = new ArrayList<>(MAX_COUNT_CURRENCY);
+            String[] currencyNames = new String[MAX_COUNT_CURRENCY];
+            for (int i = 0; i < MAX_COUNT_CURRENCY; i++) {
+                Currency currency = Currency.values()[index];
+                currencyNames[i] = currency.name();
+                currencies.add(currency);
+                index++;
+            }
+            url = String.format(SberAgentConfig.CURRENCY_URL.getConfig(), currencyNames[0], currencyNames[1], currencyNames[2], currencyNames[3], currencyNames[4]);
+            goToPage();
+            result.putAll(getCurrenciesPrices(currencies));
+            iterations--;
+        }
         closeDriver();
         return result;
     }
@@ -65,32 +82,29 @@ public class CurrencySberAgent implements SberAgent {
         driver.quit();
     }
 
-    private HashMap<Currency, JSONArray> getCurrencysPrices() {
-        HashMap<Currency, JSONArray> result = new HashMap<>();
-        for (Currency currency : Currency.values()) {
-            HashMap<Currency, JSONArray> CurrencyPrices = getCurrencyPrices(currency);
-            result.putAll(CurrencyPrices);
+    private HashMap<String, JSONObject> getCurrenciesPrices(List<Currency> currencies) {
+        HashMap<String, JSONObject> result = new HashMap<>();
+        for (Currency currency : currencies) {
+            result.putAll(getCurrencyPrices(currency));
         }
         return result;
     }
 
-    private HashMap<Currency, JSONArray> getCurrencyPrices(Currency currency) {
-        JSONArray jsonArray = new JSONArray();
-        jsonArray.add(getJsonCurrencyPrice(currency, webDriver, CurrentPrice.BUY));
-        jsonArray.add(getJsonCurrencyPrice(currency, webDriver, CurrentPrice.SELL));
-        HashMap<Currency, JSONArray> result = new HashMap<>();
-        result.put(currency, jsonArray);
+    private HashMap<String, JSONObject> getCurrencyPrices(Currency currency) {
+        JSONObject jsonObject = JsonUtils.createJsonObject(currency.name());
+        getJsonCurrencyPrice(jsonObject, currency, CurrentPrice.BUY);
+        getJsonCurrencyPrice(jsonObject, currency, CurrentPrice.SELL);
+        HashMap<String, JSONObject> result = new HashMap<>();
+        result.put(currency.name(), jsonObject);
         return result;
     }
 
-    private JSONObject getJsonCurrencyPrice(Currency currency, WebDriverWait webDriver, CurrentPrice currentPrice) {
-        WebElement webElement = getWebElement(currency, webDriver, currentPrice);
-        Map<String, String> map = new HashMap<>();
-        map.put(currentPrice.name(), webElement.getText());
-        return new JSONObject(map);
+    private void getJsonCurrencyPrice(JSONObject jsonObject, Currency currency, CurrentPrice currentPrice) {
+        WebElement webElement = getWebElement(currency, currentPrice);
+        JsonUtils.appendPrice(jsonObject, currentPrice, webElement.getText());
     }
 
-    private WebElement getWebElement(Currency currency, WebDriverWait webDriver, CurrentPrice currentPrice) {
+    private WebElement getWebElement(Currency currency, CurrentPrice currentPrice) {
         String index;
         switch (currentPrice) {
             case BUY:
