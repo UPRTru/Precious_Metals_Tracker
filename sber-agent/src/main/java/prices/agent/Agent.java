@@ -1,4 +1,4 @@
-package agent;
+package prices.agent;
 
 import net.minidev.json.JSONObject;
 

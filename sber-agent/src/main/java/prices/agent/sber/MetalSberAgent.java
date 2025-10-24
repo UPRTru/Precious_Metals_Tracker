@@ -1,6 +1,6 @@
-package agent.sber;
+package prices.agent.sber;
 
-import agent.Agent;
+import prices.agent.Agent;
 import com.precious.shared.model.CurrentPrice;
 import com.precious.shared.model.Metal;
 import net.minidev.json.JSONObject;
@@ -13,7 +13,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import utils.JsonUtils;
+import prices.utils.JsonUtils;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -21,8 +21,6 @@ import java.util.HashMap;
 @Component
 public class MetalSberAgent implements Agent {
 
-    @Value("C:/chrome-win64/chromedriver.exe")
-    private String CHROME_DRIVER_PATH;
     private final String url;
     private final ChromeOptions options;
     private WebDriver driver;
@@ -31,7 +29,7 @@ public class MetalSberAgent implements Agent {
     public MetalSberAgent() {
         this.url = SberAgentConfig.METAL_URL.getConfig();
         options = new ChromeOptions();
-        System.setProperty("webdriver.chrome.driver", CHROME_DRIVER_PATH);
+        System.setProperty("webdriver.chrome.driver", "C:/chrome-win64/chromedriver.exe");
         options.addArguments("--headless=new");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");

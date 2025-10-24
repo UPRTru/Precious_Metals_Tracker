@@ -1,19 +1,19 @@
-package service;
+package prices.service;
 
-import agent.Agent;
-import agent.sber.MetalSberAgent;
+import prices.agent.Agent;
+import prices.agent.sber.MetalSberAgent;
 import com.precious.shared.model.Currency;
 import com.precious.shared.model.CurrentPrice;
 import com.precious.shared.model.Metal;
-import model.CurrencyPrice;
-import model.MetalPrice;
+import prices.model.CurrencyPrice;
+import prices.model.MetalPrice;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import repository.CurrencyPriceRepository;
-import repository.MetalPriceRepository;
-import utils.JsonUtils;
+import prices.repository.CurrencyPriceRepository;
+import prices.repository.MetalPriceRepository;
+import prices.utils.JsonUtils;
 
 import java.math.BigDecimal;
 import java.util.Map;

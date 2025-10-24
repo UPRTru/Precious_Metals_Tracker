@@ -1,4 +1,4 @@
-package agent.sber;
+package prices.agent.sber;
 
 public enum SberAgentConfig {
     CURRENCY_URL("https://www.sberbank.ru/ru/quotes/currencies?tab=sbol" +

@@ -1,6 +1,6 @@
-package agent.sber;
+package prices.agent.sber;
 
-import agent.Agent;
+import prices.agent.Agent;
 import com.precious.shared.model.Currency;
 import com.precious.shared.model.CurrentPrice;
 import net.minidev.json.JSONObject;
@@ -13,7 +13,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import utils.JsonUtils;
+import prices.utils.JsonUtils;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -23,8 +23,6 @@ import java.util.List;
 @Component
 public class CurrencySberAgent implements Agent {
 
-    @Value("C:/chrome-win64/chromedriver.exe")
-    private String CHROME_DRIVER_PATH;
     private String url;
     private final ChromeOptions options;
     private WebDriver driver;
@@ -33,7 +31,7 @@ public class CurrencySberAgent implements Agent {
 
     public CurrencySberAgent() {
         options = new ChromeOptions();
-        System.setProperty("webdriver.chrome.driver", CHROME_DRIVER_PATH);
+        System.setProperty("webdriver.chrome.driver", "C:/chrome-win64/chromedriver.exe");
         options.addArguments("--headless=new");
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");

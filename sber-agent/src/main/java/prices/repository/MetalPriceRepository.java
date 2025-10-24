@@ -1,6 +1,6 @@
-package repository;
+package prices.repository;
 
-import model.MetalPrice;
+import prices.model.MetalPrice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -15,6 +15,6 @@ public interface MetalPriceRepository extends JpaRepository<MetalPrice, Long> {
     @Query("SELECT p FROM MetalPrice p WHERE p.metalName = :name ORDER BY p.timestamp DESC LIMIT 1")
     Optional<MetalPrice> findLatestByMetalName(String name);
 
-    List<MetalPrice> findByMetalNameAndTimestampBetweenOrderByTimestampAsc(
-            String metalName, LocalDateTime from, LocalDateTime to);
+//    List<MetalPrice> findByMetalNameAndTimestampBetweenOrderByTimestampAsc(
+//            String metalName, LocalDateTime from, LocalDateTime to);
 }

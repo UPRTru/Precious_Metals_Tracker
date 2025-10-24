@@ -1,4 +1,4 @@
-package service;
+package prices.service;
 
 public enum TypePrice {
     SBER_METAL,

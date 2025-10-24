@@ -1,16 +1,10 @@
-package controller;
+package prices.controller;
 
-import model.MetalPrice;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import repository.MetalPriceRepository;
-import service.PriceService;
-import service.TypePrice;
-
-import java.time.LocalDateTime;
-import java.util.List;
+import prices.service.PriceService;
+import prices.service.TypePrice;
 
 @RestController
 @RequestMapping("/api/sber")
@@ -30,8 +24,8 @@ public class MetalPriceController {
         return priceService.getPrices(TypePrice.SBER_METAL, metalName);
     }
 
-    @GetMapping("/sber/all/metal/{metalName}")
-    public JSONArray getSberAllMetal(@PathVariable String metalName) {
+    @GetMapping("/all/metal")
+    public JSONArray getSberAllMetal() {
         return priceService.getPrices(TypePrice.SBER_METAL);
     }
 

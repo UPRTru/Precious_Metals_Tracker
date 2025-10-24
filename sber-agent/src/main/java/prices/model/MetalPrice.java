@@ -1,26 +1,26 @@
-package model;
+package prices.model;
 
 import jakarta.persistence.*;
 import net.minidev.json.JSONObject;
-import utils.JsonUtils;
+import prices.utils.JsonUtils;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Objects;
 
 @Entity
-@Table(name = "currency_prices", indexes = {
-        @Index(name = "idx_currency_name", columnList = "currency_name"),
+@Table(name = "metal_prices", indexes = {
+        @Index(name = "idx_metal_name", columnList = "metal_name"),
         @Index(name = "idx_timestamp", columnList = "timestamp")
 })
-public class CurrencyPrice {
+public class MetalPrice {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String currencyName;
+    private String metalName;
 
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal buyPrice;
@@ -31,11 +31,11 @@ public class CurrencyPrice {
     @Column(nullable = false)
     private Long timestamp = Instant.now().toEpochMilli();
 
-    protected CurrencyPrice() {
+    protected MetalPrice() {
     }
 
-    public CurrencyPrice(String currencyName, BigDecimal buyPrice, BigDecimal sellPrice) {
-        this.currencyName = Objects.requireNonNull(currencyName);
+    public MetalPrice(String metalName, BigDecimal buyPrice, BigDecimal sellPrice) {
+        this.metalName = Objects.requireNonNull(metalName);
         this.buyPrice = Objects.requireNonNull(buyPrice);
         this.sellPrice = Objects.requireNonNull(sellPrice);
     }
@@ -44,8 +44,8 @@ public class CurrencyPrice {
         return id;
     }
 
-    public String getCurrencyName() {
-        return currencyName;
+    public String getMetalName() {
+        return metalName;
     }
 
     public BigDecimal getBuyPrice() {
@@ -61,21 +61,21 @@ public class CurrencyPrice {
     }
 
     public JSONObject toJsonObject() {
-        return JsonUtils.getPriceToJson(currencyName, buyPrice, sellPrice, timestamp);
+        return JsonUtils.getPriceToJson(metalName, buyPrice, sellPrice, timestamp);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof CurrencyPrice)) return false;
-        CurrencyPrice that = (CurrencyPrice) o;
-        return Objects.equals(currencyName, that.currencyName) &&
+        if (!(o instanceof MetalPrice)) return false;
+        MetalPrice that = (MetalPrice) o;
+        return Objects.equals(metalName, that.metalName) &&
                 Objects.equals(buyPrice, that.buyPrice) &&
                 Objects.equals(sellPrice, that.sellPrice);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(currencyName, buyPrice, sellPrice);
+        return Objects.hash(metalName, buyPrice, sellPrice);
     }
 }

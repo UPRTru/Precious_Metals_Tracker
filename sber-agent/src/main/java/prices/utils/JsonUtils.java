@@ -1,4 +1,4 @@
-package utils;
+package prices.utils;
 
 import com.precious.shared.model.CurrentPrice;
 import com.precious.shared.model.JsonKeys;

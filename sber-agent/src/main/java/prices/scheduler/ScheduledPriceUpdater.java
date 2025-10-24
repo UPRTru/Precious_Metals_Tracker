@@ -1,11 +1,11 @@
-package scheduler;
+package prices.scheduler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import service.PriceService;
-import service.TypePrice;
+import prices.service.PriceService;
+import prices.service.TypePrice;
 
 @Component
 public class ScheduledPriceUpdater {
