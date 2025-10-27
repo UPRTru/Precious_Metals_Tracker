@@ -1,6 +1,5 @@
 package prices.agent.sber;
 
-import prices.agent.Agent;
 import com.precious.shared.model.CurrentPrice;
 import com.precious.shared.model.Metal;
 import net.minidev.json.JSONObject;
@@ -11,8 +10,9 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import prices.agent.Agent;
+import prices.service.TypePrice;
 import prices.utils.JsonUtils;
 
 import java.time.Duration;
@@ -41,7 +41,7 @@ public class MetalSberAgent implements Agent {
     }
 
     @Override
-    public HashMap<String, JSONObject> getPrices() {
+    public HashMap<String, JSONObject> getPrices(TypePrice typePrice) {
         createDriver();
         goToPage();
         HashMap<String, JSONObject> result = getMetalsPrices();

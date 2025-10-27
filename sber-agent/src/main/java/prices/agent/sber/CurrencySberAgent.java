@@ -1,6 +1,6 @@
 package prices.agent.sber;
 
-import prices.agent.Agent;
+import com.precious.shared.model.Banks;
 import com.precious.shared.model.Currency;
 import com.precious.shared.model.CurrentPrice;
 import net.minidev.json.JSONObject;
@@ -11,8 +11,9 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import prices.agent.Agent;
+import prices.service.TypePrice;
 import prices.utils.JsonUtils;
 
 import java.time.Duration;
@@ -43,9 +44,14 @@ public class CurrencySberAgent implements Agent {
     }
 
     @Override
-    public HashMap<String, JSONObject> getPrices() {
+    public HashMap<String, JSONObject> getPrices(TypePrice typePrice) {
         createDriver();
-        int iterations = Currency.values().length / MAX_COUNT_CURRENCY;
+        List<Currency> allCurrenciesByBank;
+        switch (typePrice) {
+            case SBER_CURRENCY -> allCurrenciesByBank = Currency.getCurrencyByBanks(Banks.SBER);
+            default -> allCurrenciesByBank = List.of();
+        }
+        int iterations = getCountIterations(allCurrenciesByBank);
         int index = 0;
         HashMap<String, JSONObject> result = new HashMap<>(Currency.values().length);
         while (iterations > 0) {
@@ -64,6 +70,16 @@ public class CurrencySberAgent implements Agent {
         }
         closeDriver();
         return result;
+    }
+
+    private int getCountIterations(List<Currency> allCurrenciesByBank) {
+        if (allCurrenciesByBank.isEmpty()) {
+            return 0;
+        } else if (allCurrenciesByBank.size() <= MAX_COUNT_CURRENCY) {
+            return 1;
+        } else {
+            return allCurrenciesByBank.size() / MAX_COUNT_CURRENCY;
+        }
     }
 
     private void createDriver() {
@@ -117,7 +133,7 @@ public class CurrencySberAgent implements Agent {
 
         return webDriver.until(
                 ExpectedConditions.presenceOfElementLocated(
-                        By.xpath(String.format(SberAgentConfig.METAL_WEB_ELEMENT.getConfig(), currency.getDisplayName(), currency.name(), index))
+                        By.xpath(String.format(SberAgentConfig.CURRENCY_WEB_ELEMENT.getConfig(), currency.getDisplayName(), currency.name(), index))
                 )
         );
     }

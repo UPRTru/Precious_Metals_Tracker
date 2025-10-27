@@ -1,6 +1,8 @@
 package prices.service;
 
+import com.precious.shared.model.Banks;
 import prices.agent.Agent;
+import prices.agent.sber.CurrencySberAgent;
 import prices.agent.sber.MetalSberAgent;
 import com.precious.shared.model.Currency;
 import com.precious.shared.model.CurrentPrice;
@@ -21,7 +23,7 @@ import java.util.Map;
 @Service
 public class PriceService {
 
-    private final Agent dgent;
+    private Agent dgent;
     private final MetalPriceRepository metalPriceRepository;
     private final CurrencyPriceRepository currencyPriceRepository;
 
@@ -33,7 +35,12 @@ public class PriceService {
 
     @Transactional
     public void updatePrices(TypePrice typePrice) {
-        Map<String, JSONObject> current = dgent.getPrices();
+        if (typePrice.equals(TypePrice.SBER_METAL)) {
+            dgent = new MetalSberAgent();
+        } else if (typePrice.equals(TypePrice.SBER_CURRENCY)) {
+            dgent = new CurrencySberAgent();
+        }
+        Map<String, JSONObject> current = dgent.getPrices(typePrice);
 
         for (Map.Entry<String, JSONObject> entry : current.entrySet()) {
             String name = entry.getKey();
@@ -45,14 +52,14 @@ public class PriceService {
             switch (typePrice) {
                 case SBER_METAL -> {
                     var latest = metalPriceRepository.findLatestByMetalName(name);
-                    MetalPrice newPrice = new MetalPrice(name, buyPrice, sellPrice);
+                    MetalPrice newPrice = new MetalPrice(name, buyPrice, sellPrice, Banks.SBER.name());
                     if (latest.isEmpty() || !latest.get().equals(newPrice)) {
                         metalPriceRepository.save(newPrice);
                     }
                 }
                 case SBER_CURRENCY -> {
                     var latest = currencyPriceRepository.findLatestByCurrencyName(name);
-                    CurrencyPrice newPrice = new CurrencyPrice(name, buyPrice, sellPrice);
+                    CurrencyPrice newPrice = new CurrencyPrice(name, buyPrice, sellPrice, Banks.SBER.name());
                     if (latest.isEmpty() || !latest.get().equals(newPrice)) {
                         currencyPriceRepository.save(newPrice);
                     }
@@ -93,7 +100,7 @@ public class PriceService {
                 }
             }
         }
-        return JsonUtils.getPriceToJson(name, null, null, null);
+        return JsonUtils.getPriceToJson(name, null, null, null, null);
     }
 
     private BigDecimal parsePrice(String text) {

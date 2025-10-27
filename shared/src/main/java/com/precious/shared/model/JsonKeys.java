@@ -4,7 +4,8 @@ public enum JsonKeys {
     NAME("name"),
     BUY_PRICE("buyPrice"),
     SELL_PRICE("sellPrice"),
-    TIMESTAMP("timestamp");
+    TIMESTAMP("timestamp"),
+    BANK("bank");
 
     private final String key;
 

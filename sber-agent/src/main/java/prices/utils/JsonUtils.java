@@ -17,11 +17,12 @@ public class JsonUtils {
         return jsonObject;
     }
 
-    public static JSONObject getPriceToJson(String name, BigDecimal buyPrice, BigDecimal sellPrice, Long timestamp) {
+    public static JSONObject getPriceToJson(String name, BigDecimal buyPrice, BigDecimal sellPrice, Long timestamp, String bank) {
         return new JSONObject()
                 .appendField(JsonKeys.NAME.getKey(), name)
                 .appendField(JsonKeys.BUY_PRICE.getKey(), buyPrice)
                 .appendField(JsonKeys.SELL_PRICE.getKey(), sellPrice)
-                .appendField(JsonKeys.TIMESTAMP.getKey(), timestamp);
+                .appendField(JsonKeys.TIMESTAMP.getKey(), timestamp)
+                .appendField(JsonKeys.BANK.getKey(), bank);
     }
 }

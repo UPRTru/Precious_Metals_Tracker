@@ -1,5 +1,6 @@
 package prices.model;
 
+import com.precious.shared.model.Banks;
 import jakarta.persistence.*;
 import net.minidev.json.JSONObject;
 import prices.utils.JsonUtils;
@@ -31,13 +32,17 @@ public class CurrencyPrice {
     @Column(nullable = false)
     private Long timestamp = Instant.now().toEpochMilli();
 
+    @Column(nullable = false)
+    private String bank;
+
     protected CurrencyPrice() {
     }
 
-    public CurrencyPrice(String currencyName, BigDecimal buyPrice, BigDecimal sellPrice) {
+    public CurrencyPrice(String currencyName, BigDecimal buyPrice, BigDecimal sellPrice, String bank) {
         this.currencyName = Objects.requireNonNull(currencyName);
         this.buyPrice = Objects.requireNonNull(buyPrice);
         this.sellPrice = Objects.requireNonNull(sellPrice);
+        this.bank = bank;
     }
 
     public Long getId() {
@@ -60,15 +65,18 @@ public class CurrencyPrice {
         return timestamp;
     }
 
+    public String getBank() {
+        return bank;
+    }
+
     public JSONObject toJsonObject() {
-        return JsonUtils.getPriceToJson(currencyName, buyPrice, sellPrice, timestamp);
+        return JsonUtils.getPriceToJson(currencyName, buyPrice, sellPrice, timestamp, bank);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof CurrencyPrice)) return false;
-        CurrencyPrice that = (CurrencyPrice) o;
+        if (!(o instanceof CurrencyPrice that)) return false;
         return Objects.equals(currencyName, that.currencyName) &&
                 Objects.equals(buyPrice, that.buyPrice) &&
                 Objects.equals(sellPrice, that.sellPrice);

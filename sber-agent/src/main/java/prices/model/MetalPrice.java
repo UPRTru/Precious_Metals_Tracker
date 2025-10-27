@@ -1,5 +1,6 @@
 package prices.model;
 
+import com.precious.shared.model.Banks;
 import jakarta.persistence.*;
 import net.minidev.json.JSONObject;
 import prices.utils.JsonUtils;
@@ -31,13 +32,17 @@ public class MetalPrice {
     @Column(nullable = false)
     private Long timestamp = Instant.now().toEpochMilli();
 
+    @Column(nullable = false)
+    private String bank;
+
     protected MetalPrice() {
     }
 
-    public MetalPrice(String metalName, BigDecimal buyPrice, BigDecimal sellPrice) {
+    public MetalPrice(String metalName, BigDecimal buyPrice, BigDecimal sellPrice, String bank) {
         this.metalName = Objects.requireNonNull(metalName);
         this.buyPrice = Objects.requireNonNull(buyPrice);
         this.sellPrice = Objects.requireNonNull(sellPrice);
+        this.bank = bank;
     }
 
     public Long getId() {
@@ -60,8 +65,12 @@ public class MetalPrice {
         return timestamp;
     }
 
+    public String getBank() {
+        return bank;
+    }
+
     public JSONObject toJsonObject() {
-        return JsonUtils.getPriceToJson(metalName, buyPrice, sellPrice, timestamp);
+        return JsonUtils.getPriceToJson(metalName, buyPrice, sellPrice, timestamp, bank);
     }
 
     @Override
