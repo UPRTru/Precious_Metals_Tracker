@@ -6,34 +6,40 @@ import com.precious.shared.model.CurrentPrice;
 import com.precious.shared.model.Metal;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import prices.agent.Agent;
-import prices.agent.sber.CurrencySberAgent;
-import prices.agent.sber.MetalSberAgent;
+import prices.agent.sber.currency.CurrencySberAgent;
+import prices.agent.sber.metal.MetalSberAgent;
 import prices.model.CurrencyPrice;
 import prices.model.MetalPrice;
-import prices.repository.PriceRepository;
+import prices.repository.CurrencyPriceRepository;
+import prices.repository.MetalPriceRepository;
 import prices.utils.JsonUtils;
 
 import java.math.BigDecimal;
 import java.util.Map;
 
 @Service
-public class PriceService<T> {
+public class MetalPriceService {
 
-    private final Agent bgent;
-    private final PriceRepository<T> priceRepository;
+    private Agent bAgent;
+    private final MetalPriceRepository metalPriceRepository;
+    private final CurrencyPriceRepository currencyPriceRepository;
 
-    public PriceService(Agent bgent, PriceRepository<T> priceRepository) {
-        this.bgent = bgent;
-        this.priceRepository = priceRepository;
+    public MetalPriceService(Agent bAgent, MetalPriceRepository metalPriceRepository, CurrencyPriceRepository currencyPriceRepository) {
+        this.bAgent = bAgent;
+        this.metalPriceRepository = metalPriceRepository;
+        this.currencyPriceRepository = currencyPriceRepository;
     }
 
     @Transactional
     public void updatePrices(TypePrice typePrice) {
-        Map<String, JSONObject> current = bgent.getPrices(typePrice);
+        if (typePrice.equals(TypePrice.SBER_METAL)) {
+            bAgent = new MetalSberAgent();
+        } else if (typePrice.equals(TypePrice.SBER_CURRENCY)) {
+            bAgent = new CurrencySberAgent();
+        }
+        Map<String, JSONObject> current = bAgent.getPrices(typePrice);
 
         for (Map.Entry<String, JSONObject> entry : current.entrySet()) {
             String name = entry.getKey();
@@ -44,17 +50,17 @@ public class PriceService<T> {
 
             switch (typePrice) {
                 case SBER_METAL -> {
-                    var latest = priceRepository.findLatestByName(name);
+                    var latest = metalPriceRepository.findLatestByName(name);
                     MetalPrice newPrice = new MetalPrice(name, buyPrice, sellPrice, Banks.SBER.name());
                     if (latest.isEmpty() || !latest.get().equals(newPrice)) {
-                        priceRepository.save(newPrice);
+                        metalPriceRepository.save(newPrice);
                     }
                 }
                 case SBER_CURRENCY -> {
-                    var latest = priceRepository.findLatestByName(name);
+                    var latest = currencyPriceRepository.findLatestByName(name);
                     CurrencyPrice newPrice = new CurrencyPrice(name, buyPrice, sellPrice, Banks.SBER.name());
                     if (latest.isEmpty() || !latest.get().equals(newPrice)) {
-                        priceRepository.save(newPrice);
+                        currencyPriceRepository.save(newPrice);
                     }
                 }
             }
@@ -65,12 +71,12 @@ public class PriceService<T> {
         JSONArray array = new JSONArray();
         switch (typePrice) {
             case SBER_METAL -> {
-                for (Metal metal : Metal.values()) {
+                for (Metal metal: Metal.values()) {
                     array.add(getPrices(typePrice, metal.name()));
                 }
             }
             case SBER_CURRENCY -> {
-                for (Currency currency : Currency.values()) {
+                for (Currency currency: Currency.values()) {
                     array.add(getPrices(typePrice, currency.name()));
                 }
             }
@@ -81,13 +87,13 @@ public class PriceService<T> {
     public JSONObject getPrices(TypePrice typePrice, String name) {
         switch (typePrice) {
             case SBER_METAL -> {
-                var latest = metalPriceRepository.findLatestByMetalName(name);
+                var latest = metalPriceRepository.findLatestByName(name);
                 if (!latest.isEmpty()) {
                     return latest.get().toJsonObject();
                 }
             }
             case SBER_CURRENCY -> {
-                var latest = currencyPriceRepository.findLatestByCurrencyName(name);
+                var latest = currencyPriceRepository.findLatestByName(name);
                 if (!latest.isEmpty()) {
                     return latest.get().toJsonObject();
                 }

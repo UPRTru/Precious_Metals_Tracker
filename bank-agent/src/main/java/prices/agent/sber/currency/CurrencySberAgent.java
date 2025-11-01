@@ -1,4 +1,4 @@
-package prices.agent.sber;
+package prices.agent.sber.currency;
 
 import com.precious.shared.model.Banks;
 import com.precious.shared.model.Currency;
@@ -13,7 +13,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Component;
 import prices.agent.Agent;
-import prices.service.TypePrice;
+import prices.agent.AgentConfig;
 import prices.utils.JsonUtils;
 
 import java.time.Duration;
@@ -44,14 +44,9 @@ public class CurrencySberAgent implements Agent {
     }
 
     @Override
-    public HashMap<String, JSONObject> getPrices(TypePrice typePrice) {
+    public HashMap<String, JSONObject> getPrices(SberAgentCurrencyConfig agentConfig) {
         createDriver();
-        List<Currency> allCurrenciesByBank;
-        switch (typePrice) {
-            case SBER_CURRENCY -> allCurrenciesByBank = Currency.getCurrencyByBanks(Banks.SBER);
-            default -> allCurrenciesByBank = List.of();
-        }
-        int iterations = getCountIterations(allCurrenciesByBank);
+        int iterations = getCountIterations(Currency.getCurrencyByBanks(Banks.SBER));
         int index = 0;
         HashMap<String, JSONObject> result = new HashMap<>(Currency.values().length);
         while (iterations > 0) {
@@ -63,7 +58,7 @@ public class CurrencySberAgent implements Agent {
                 currencies.add(currency);
                 index++;
             }
-            url = String.format(SberAgentConfig.CURRENCY_URL.getConfig(), currencyNames[0], currencyNames[1], currencyNames[2], currencyNames[3], currencyNames[4]);
+            url = String.format(agentConfig.getConfig(), currencyNames[0], currencyNames[1], currencyNames[2], currencyNames[3], currencyNames[4]);
             goToPage();
             result.putAll(getCurrenciesPrices(currencies));
             iterations--;
@@ -122,10 +117,10 @@ public class CurrencySberAgent implements Agent {
         String index;
         switch (currentPrice) {
             case BUY:
-                index = SberAgentConfig.CURRENCY_INDEX_BUY.getConfig();
+                index = SberAgentCurrencyConfig.INDEX_BUY.getConfig();
                 break;
             case SELL:
-                index = SberAgentConfig.CURRENCY_INDEX_SELL.getConfig();
+                index = SberAgentCurrencyConfig.INDEX_SELL.getConfig();
                 break;
             default:
                 index = "";
@@ -133,7 +128,7 @@ public class CurrencySberAgent implements Agent {
 
         return webDriver.until(
                 ExpectedConditions.presenceOfElementLocated(
-                        By.xpath(String.format(SberAgentConfig.CURRENCY_WEB_ELEMENT.getConfig(), currency.getDisplayName(), currency.name(), index))
+                        By.xpath(String.format(SberAgentCurrencyConfig.WEB_ELEMENT.getConfig(), currency.getDisplayName(), currency.name(), index))
                 )
         );
     }

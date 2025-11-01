@@ -1,4 +1,4 @@
-package prices.agent.sber;
+package prices.agent.sber.metal;
 
 import com.precious.shared.model.CurrentPrice;
 import com.precious.shared.model.Metal;
@@ -12,7 +12,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Component;
 import prices.agent.Agent;
-import prices.service.TypePrice;
+import prices.agent.AgentConfig;
 import prices.utils.JsonUtils;
 
 import java.time.Duration;
@@ -21,13 +21,11 @@ import java.util.HashMap;
 @Component
 public class MetalSberAgent implements Agent {
 
-    private final String url;
     private final ChromeOptions options;
     private WebDriver driver;
     private WebDriverWait webDriver;
 
     public MetalSberAgent() {
-        this.url = SberAgentConfig.METAL_URL.getConfig();
         options = new ChromeOptions();
         System.setProperty("webdriver.chrome.driver", "C:/chrome-win64/chromedriver.exe");
         options.addArguments("--headless=new");
@@ -41,9 +39,9 @@ public class MetalSberAgent implements Agent {
     }
 
     @Override
-    public HashMap<String, JSONObject> getPrices(TypePrice typePrice) {
+    public HashMap<String, JSONObject> getPrices(SberAgentMetalConfig agentConfig) {
         createDriver();
-        goToPage();
+        goToPage(agentConfig.getConfig());
         HashMap<String, JSONObject> result = getMetalsPrices();
         closeDriver();
         return result;
@@ -54,7 +52,7 @@ public class MetalSberAgent implements Agent {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
     }
 
-    private void goToPage() {
+    private void goToPage(String url) {
         driver.get(url);
         webDriver = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
@@ -89,10 +87,10 @@ public class MetalSberAgent implements Agent {
         String index;
         switch (currentPrice) {
             case BUY:
-                index = SberAgentConfig.METAL_INDEX_BUY.getConfig();
+                index = AgentConfig.METAL_INDEX_BUY.getConfig();
                 break;
             case SELL:
-                index = SberAgentConfig.METAL_INDEX_SELL.getConfig();
+                index = AgentConfig.METAL_INDEX_SELL.getConfig();
                 break;
             default:
                 index = "";
@@ -100,7 +98,7 @@ public class MetalSberAgent implements Agent {
 
         return webDriver.until(
                 ExpectedConditions.presenceOfElementLocated(
-                        By.xpath(String.format(SberAgentConfig.METAL_WEB_ELEMENT.getConfig(), metal.getDisplayName(), index))
+                        By.xpath(String.format(AgentConfig.WEB_ELEMENT.getConfig(), metal.getDisplayName(), index))
                 )
         );
     }

@@ -1,15 +1,15 @@
 package prices.controller;
 
-import prices.service.PriceService;
+import prices.service.CurrencyPriceService;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class PriceCheckRestController {
 
-    private final PriceService priceService;
+    private final CurrencyPriceService currencyPriceService;
 
-    public PriceCheckRestController(PriceService priceService) {
-        this.priceService = priceService;
+    public PriceCheckRestController(CurrencyPriceService currencyPriceService) {
+        this.currencyPriceService = currencyPriceService;
     }
 
 //    @GetMapping("/check")

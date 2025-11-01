@@ -4,8 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import prices.service.PriceService;
-import prices.service.TypePrice;
+import prices.service.CurrencyPriceService;
 
 import java.util.Random;
 
@@ -16,10 +15,10 @@ public class ScheduledPriceUpdater {
 
     private static final Logger log = LoggerFactory.getLogger(ScheduledPriceUpdater.class);
 
-    private final PriceService priceService;
+    private final CurrencyPriceService currencyPriceService;
 
-    public ScheduledPriceUpdater(PriceService priceService) {
-        this.priceService = priceService;
+    public ScheduledPriceUpdater(CurrencyPriceService currencyPriceService) {
+        this.currencyPriceService = currencyPriceService;
     }
 
 //    @Scheduled(fixedRate = 300_000) // 5 минут
@@ -29,10 +28,10 @@ public class ScheduledPriceUpdater {
         try {
             int randomNumber = random.nextInt(120001);
             Thread.sleep(randomNumber);
-            priceService.updatePrices(TypePrice.SBER_METAL);
+            currencyPriceService.updatePrices(TypePrice.SBER_METAL);
             randomNumber = random.nextInt(140001) + 80000;
             Thread.sleep(randomNumber);
-            priceService.updatePrices(TypePrice.SBER_CURRENCY);
+            currencyPriceService.updatePrices(TypePrice.SBER_CURRENCY);
             log.info("Metal prices updated successfully.");
         } catch (Exception e) {
             log.error("Error during price update", e);

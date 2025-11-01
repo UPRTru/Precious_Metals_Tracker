@@ -5,8 +5,7 @@ import net.minidev.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
 import prices.model.MetalPrice;
 import prices.repository.MetalPriceRepository;
-import prices.service.PriceService;
-import prices.service.TypePrice;
+import prices.service.CurrencyPriceService;
 
 import java.util.List;
 
@@ -15,21 +14,21 @@ import java.util.List;
 public class MetalPriceController {
 
     private final MetalPriceRepository repository;
-    private final PriceService priceService;
+    private final CurrencyPriceService currencyPriceService;
 
-    public MetalPriceController(PriceService priceService, MetalPriceRepository repository) {
+    public MetalPriceController(CurrencyPriceService currencyPriceService, MetalPriceRepository repository) {
         this.repository = repository;
-        this.priceService = priceService;
+        this.currencyPriceService = currencyPriceService;
     }
 
     @GetMapping("/lastprice/{metalName}")
     public JSONObject getSberLatestMetal(@PathVariable String metalName) {
-        return priceService.getPrices(TypePrice.SBER_METAL, metalName);
+        return currencyPriceService.getPrices(TypePrice.SBER_METAL, metalName);
     }
 
     @GetMapping("/all")
     public JSONArray getSberAllMetal() {
-        return priceService.getPrices(TypePrice.SBER_METAL);
+        return currencyPriceService.getPrices(TypePrice.SBER_METAL);
     }
 
     @GetMapping("/history/{metalName}")
