@@ -1,6 +1,5 @@
 package prices.model;
 
-import com.precious.shared.model.Banks;
 import jakarta.persistence.*;
 import net.minidev.json.JSONObject;
 import prices.utils.JsonUtils;
@@ -11,7 +10,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "currency_prices", indexes = {
-        @Index(name = "idx_currency_name", columnList = "currency_name"),
+        @Index(name = "idx_name", columnList = "name"),
         @Index(name = "idx_timestamp", columnList = "timestamp")
 })
 public class CurrencyPrice {
@@ -21,7 +20,7 @@ public class CurrencyPrice {
     private Long id;
 
     @Column(nullable = false)
-    private String currencyName;
+    private String name;
 
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal buyPrice;
@@ -38,8 +37,8 @@ public class CurrencyPrice {
     protected CurrencyPrice() {
     }
 
-    public CurrencyPrice(String currencyName, BigDecimal buyPrice, BigDecimal sellPrice, String bank) {
-        this.currencyName = Objects.requireNonNull(currencyName);
+    public CurrencyPrice(String name, BigDecimal buyPrice, BigDecimal sellPrice, String bank) {
+        this.name = Objects.requireNonNull(name);
         this.buyPrice = Objects.requireNonNull(buyPrice);
         this.sellPrice = Objects.requireNonNull(sellPrice);
         this.bank = bank;
@@ -49,8 +48,8 @@ public class CurrencyPrice {
         return id;
     }
 
-    public String getCurrencyName() {
-        return currencyName;
+    public String getName() {
+        return name;
     }
 
     public BigDecimal getBuyPrice() {
@@ -70,20 +69,20 @@ public class CurrencyPrice {
     }
 
     public JSONObject toJsonObject() {
-        return JsonUtils.getPriceToJson(currencyName, buyPrice, sellPrice, timestamp, bank);
+        return JsonUtils.getPriceToJson(name, buyPrice, sellPrice, timestamp, bank);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof CurrencyPrice that)) return false;
-        return Objects.equals(currencyName, that.currencyName) &&
+        return Objects.equals(name, that.name) &&
                 Objects.equals(buyPrice, that.buyPrice) &&
                 Objects.equals(sellPrice, that.sellPrice);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(currencyName, buyPrice, sellPrice);
+        return Objects.hash(name, buyPrice, sellPrice);
     }
 }

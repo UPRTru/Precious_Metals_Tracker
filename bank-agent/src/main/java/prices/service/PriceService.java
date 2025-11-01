@@ -1,46 +1,39 @@
 package prices.service;
 
 import com.precious.shared.model.Banks;
-import prices.agent.Agent;
-import prices.agent.sber.CurrencySberAgent;
-import prices.agent.sber.MetalSberAgent;
 import com.precious.shared.model.Currency;
 import com.precious.shared.model.CurrentPrice;
 import com.precious.shared.model.Metal;
-import prices.model.CurrencyPrice;
-import prices.model.MetalPrice;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import prices.repository.CurrencyPriceRepository;
-import prices.repository.MetalPriceRepository;
+import prices.agent.Agent;
+import prices.agent.sber.CurrencySberAgent;
+import prices.agent.sber.MetalSberAgent;
+import prices.model.CurrencyPrice;
+import prices.model.MetalPrice;
+import prices.repository.PriceRepository;
 import prices.utils.JsonUtils;
 
 import java.math.BigDecimal;
 import java.util.Map;
 
 @Service
-public class PriceService {
+public class PriceService<T> {
 
-    private Agent dgent;
-    private final MetalPriceRepository metalPriceRepository;
-    private final CurrencyPriceRepository currencyPriceRepository;
+    private final Agent bgent;
+    private final PriceRepository<T> priceRepository;
 
-    public PriceService(MetalSberAgent dgent, MetalPriceRepository metalPriceRepository, CurrencyPriceRepository currencyPriceRepository) {
-        this.dgent = dgent;
-        this.metalPriceRepository = metalPriceRepository;
-        this.currencyPriceRepository = currencyPriceRepository;
+    public PriceService(Agent bgent, PriceRepository<T> priceRepository) {
+        this.bgent = bgent;
+        this.priceRepository = priceRepository;
     }
 
     @Transactional
     public void updatePrices(TypePrice typePrice) {
-        if (typePrice.equals(TypePrice.SBER_METAL)) {
-            dgent = new MetalSberAgent();
-        } else if (typePrice.equals(TypePrice.SBER_CURRENCY)) {
-            dgent = new CurrencySberAgent();
-        }
-        Map<String, JSONObject> current = dgent.getPrices(typePrice);
+        Map<String, JSONObject> current = bgent.getPrices(typePrice);
 
         for (Map.Entry<String, JSONObject> entry : current.entrySet()) {
             String name = entry.getKey();
@@ -51,17 +44,17 @@ public class PriceService {
 
             switch (typePrice) {
                 case SBER_METAL -> {
-                    var latest = metalPriceRepository.findLatestByMetalName(name);
+                    var latest = priceRepository.findLatestByName(name);
                     MetalPrice newPrice = new MetalPrice(name, buyPrice, sellPrice, Banks.SBER.name());
                     if (latest.isEmpty() || !latest.get().equals(newPrice)) {
-                        metalPriceRepository.save(newPrice);
+                        priceRepository.save(newPrice);
                     }
                 }
                 case SBER_CURRENCY -> {
-                    var latest = currencyPriceRepository.findLatestByCurrencyName(name);
+                    var latest = priceRepository.findLatestByName(name);
                     CurrencyPrice newPrice = new CurrencyPrice(name, buyPrice, sellPrice, Banks.SBER.name());
                     if (latest.isEmpty() || !latest.get().equals(newPrice)) {
-                        currencyPriceRepository.save(newPrice);
+                        priceRepository.save(newPrice);
                     }
                 }
             }
@@ -72,12 +65,12 @@ public class PriceService {
         JSONArray array = new JSONArray();
         switch (typePrice) {
             case SBER_METAL -> {
-                for (Metal metal: Metal.values()) {
+                for (Metal metal : Metal.values()) {
                     array.add(getPrices(typePrice, metal.name()));
                 }
             }
             case SBER_CURRENCY -> {
-                for (Currency currency: Currency.values()) {
+                for (Currency currency : Currency.values()) {
                     array.add(getPrices(typePrice, currency.name()));
                 }
             }

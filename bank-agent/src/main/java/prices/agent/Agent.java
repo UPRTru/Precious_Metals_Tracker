@@ -7,5 +7,5 @@ import java.util.HashMap;
 
 public interface Agent {
 
-    public HashMap<String, JSONObject> getPrices(TypePrice typePrice);
+    HashMap<String, JSONObject> getPrices(TypePrice typePrice);
 }

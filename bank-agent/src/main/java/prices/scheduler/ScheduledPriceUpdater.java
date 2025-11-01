@@ -23,7 +23,7 @@ public class ScheduledPriceUpdater {
     }
 
 //    @Scheduled(fixedRate = 300_000) // 5 минут
-    @Scheduled(fixedRate = 900_000) // 5 минут
+    @Scheduled(fixedRate = 900_000) // 15 минут
     public void updatePrices() {
         log.info("Fetching and updating metal prices...");
         try {
