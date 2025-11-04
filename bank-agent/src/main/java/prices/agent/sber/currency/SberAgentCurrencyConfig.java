@@ -4,7 +4,7 @@ import prices.agent.AgentConfig;
 import prices.agent.sber.metal.SberAgentMetalConfig;
 
 public enum SberAgentCurrencyConfig implements AgentConfig {
-
+    SBER_AGENT_CURRENCY(CurrencySberAgent.AGENT_NAME),
     URL("https://www.sberbank.ru/ru/quotes/currencies?tab=sbol" +
             "&currency=%s" +
             "&currency=%s" +
@@ -30,5 +30,25 @@ public enum SberAgentCurrencyConfig implements AgentConfig {
 
     public String getConfig() {
         return config;
+    }
+
+    @Override
+    public String getUrl() {
+        return URL.getConfig();
+    }
+
+    @Override
+    public String getWebElement() {
+        return WEB_ELEMENT.getConfig();
+    }
+
+    @Override
+    public String getIndexBuy() {
+        return INDEX_BUY.getConfig();
+    }
+
+    @Override
+    public String getIndexSell() {
+        return INDEX_SELL.getConfig();
     }
 }

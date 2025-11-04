@@ -34,6 +34,9 @@ public class MetalPrice {
     @Column(nullable = false)
     private String bank;
 
+    @Column(nullable = false)
+    private String weight;
+
     protected MetalPrice() {
     }
 
@@ -66,6 +69,10 @@ public class MetalPrice {
 
     public String getBank() {
         return bank;
+    }
+
+    public String getWeight() {
+        return weight;
     }
 
     public JSONObject toJsonObject() {

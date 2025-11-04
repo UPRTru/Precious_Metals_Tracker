@@ -1,15 +1,12 @@
 package prices.service;
 
-import com.precious.shared.model.Banks;
-import com.precious.shared.model.Currency;
-import com.precious.shared.model.CurrentPrice;
-import com.precious.shared.model.Metal;
+import com.precious.shared.model.*;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import prices.agent.sber.currency.CurrencySberAgent;
-import prices.agent.sber.metal.MetalSberAgent;
+import prices.agent.Agent;
+import prices.agent.AgentConfig;
 import prices.model.CurrencyPrice;
 import prices.model.MetalPrice;
 import prices.repository.CurrencyPriceRepository;
@@ -20,26 +17,20 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 @Service
-public class MetalPriceService {
+public class PriceService<T extends AgentConfig> {
 
-    private Agent bAgent;
     private final MetalPriceRepository metalPriceRepository;
     private final CurrencyPriceRepository currencyPriceRepository;
 
-    public MetalPriceService(Agent bAgent, MetalPriceRepository metalPriceRepository, CurrencyPriceRepository currencyPriceRepository) {
-        this.bAgent = bAgent;
+    public PriceService(MetalPriceRepository metalPriceRepository,
+                        CurrencyPriceRepository currencyPriceRepository) {
         this.metalPriceRepository = metalPriceRepository;
         this.currencyPriceRepository = currencyPriceRepository;
     }
 
     @Transactional
-    public void updatePrices(TypePrice typePrice) {
-        if (typePrice.equals(TypePrice.SBER_METAL)) {
-            bAgent = new MetalSberAgent();
-        } else if (typePrice.equals(TypePrice.SBER_CURRENCY)) {
-            bAgent = new CurrencySberAgent();
-        }
-        Map<String, JSONObject> current = bAgent.getPrices(typePrice);
+    public void updatePrices(TypePrice typePrice, Agent agent) {
+        Map<String, JSONObject> current = agent.getPrices();
 
         for (Map.Entry<String, JSONObject> entry : current.entrySet()) {
             String name = entry.getKey();
@@ -49,14 +40,14 @@ public class MetalPriceService {
             BigDecimal sellPrice = parsePrice(data.get(CurrentPrice.SELL.name()).toString());
 
             switch (typePrice) {
-                case SBER_METAL -> {
+                case METAL -> {
                     var latest = metalPriceRepository.findLatestByName(name);
                     MetalPrice newPrice = new MetalPrice(name, buyPrice, sellPrice, Banks.SBER.name());
                     if (latest.isEmpty() || !latest.get().equals(newPrice)) {
                         metalPriceRepository.save(newPrice);
                     }
                 }
-                case SBER_CURRENCY -> {
+                case CURRENCY -> {
                     var latest = currencyPriceRepository.findLatestByName(name);
                     CurrencyPrice newPrice = new CurrencyPrice(name, buyPrice, sellPrice, Banks.SBER.name());
                     if (latest.isEmpty() || !latest.get().equals(newPrice)) {
@@ -70,13 +61,13 @@ public class MetalPriceService {
     public JSONArray getPrices(TypePrice typePrice) {
         JSONArray array = new JSONArray();
         switch (typePrice) {
-            case SBER_METAL -> {
-                for (Metal metal: Metal.values()) {
+            case METAL -> {
+                for (Metal metal : Metal.values()) {
                     array.add(getPrices(typePrice, metal.name()));
                 }
             }
-            case SBER_CURRENCY -> {
-                for (Currency currency: Currency.values()) {
+            case CURRENCY -> {
+                for (Currency currency : Currency.values()) {
                     array.add(getPrices(typePrice, currency.name()));
                 }
             }
@@ -86,13 +77,13 @@ public class MetalPriceService {
 
     public JSONObject getPrices(TypePrice typePrice, String name) {
         switch (typePrice) {
-            case SBER_METAL -> {
+            case METAL -> {
                 var latest = metalPriceRepository.findLatestByName(name);
                 if (!latest.isEmpty()) {
                     return latest.get().toJsonObject();
                 }
             }
-            case SBER_CURRENCY -> {
+            case CURRENCY -> {
                 var latest = currencyPriceRepository.findLatestByName(name);
                 if (!latest.isEmpty()) {
                     return latest.get().toJsonObject();

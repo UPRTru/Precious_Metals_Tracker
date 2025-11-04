@@ -24,4 +24,8 @@ public interface MetalPriceRepository extends JpaRepository<MetalPrice, Long> {
             @Param("name") String name,
             @Param("from") Long from,
             @Param("to") Long to);
+
+    @Query("SELECT p FROM MetalPrice p " +
+            "WHERE p.timestamp = (SELECT MAX(p2.timestamp) FROM MetalPrice p2 WHERE p2.name = p.name)")
+    List<MetalPrice> findLatestUniqueByName();
 }

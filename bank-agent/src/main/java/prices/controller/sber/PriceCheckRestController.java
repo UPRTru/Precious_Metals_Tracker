@@ -1,6 +1,5 @@
-package prices.controller;
+package prices.controller.sber;
 
-import prices.service.CurrencyPriceService;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController

@@ -13,19 +13,24 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Component;
 import prices.agent.Agent;
 import prices.agent.AgentConfig;
+import prices.agent.EnumAgentsConfig;
 import prices.utils.JsonUtils;
 
 import java.time.Duration;
 import java.util.HashMap;
 
-@Component
+@Component(MetalSberAgent.AGENT_NAME)
 public class MetalSberAgent implements Agent {
+
+    public static final String AGENT_NAME = "sber agent metal";
 
     private final ChromeOptions options;
     private WebDriver driver;
     private WebDriverWait webDriver;
+    private final AgentConfig agentConfig;
 
     public MetalSberAgent() {
+        agentConfig = EnumAgentsConfig.SBER_METAL.getAgentConfig();
         options = new ChromeOptions();
         System.setProperty("webdriver.chrome.driver", "C:/chrome-win64/chromedriver.exe");
         options.addArguments("--headless=new");
@@ -39,9 +44,9 @@ public class MetalSberAgent implements Agent {
     }
 
     @Override
-    public HashMap<String, JSONObject> getPrices(SberAgentMetalConfig agentConfig) {
+    public HashMap<String, JSONObject> getPrices() {
         createDriver();
-        goToPage(agentConfig.getConfig());
+        goToPage(agentConfig.getUrl());
         HashMap<String, JSONObject> result = getMetalsPrices();
         closeDriver();
         return result;
@@ -87,10 +92,10 @@ public class MetalSberAgent implements Agent {
         String index;
         switch (currentPrice) {
             case BUY:
-                index = AgentConfig.METAL_INDEX_BUY.getConfig();
+                index = agentConfig.getIndexBuy();
                 break;
             case SELL:
-                index = AgentConfig.METAL_INDEX_SELL.getConfig();
+                index = agentConfig.getIndexSell();
                 break;
             default:
                 index = "";
@@ -98,7 +103,7 @@ public class MetalSberAgent implements Agent {
 
         return webDriver.until(
                 ExpectedConditions.presenceOfElementLocated(
-                        By.xpath(String.format(AgentConfig.WEB_ELEMENT.getConfig(), metal.getDisplayName(), index))
+                        By.xpath(String.format(agentConfig.getWebElement(), metal.getDisplayName(), index))
                 )
         );
     }

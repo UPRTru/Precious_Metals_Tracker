@@ -14,6 +14,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Component;
 import prices.agent.Agent;
 import prices.agent.AgentConfig;
+import prices.agent.EnumAgentsConfig;
 import prices.utils.JsonUtils;
 
 import java.time.Duration;
@@ -21,16 +22,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-@Component
+@Component(CurrencySberAgent.AGENT_NAME)
 public class CurrencySberAgent implements Agent {
 
-    private String url;
+    public static final String AGENT_NAME = "sber agent current";
+
     private final ChromeOptions options;
     private WebDriver driver;
     private WebDriverWait webDriver;
     private final int MAX_COUNT_CURRENCY = 5;
+    private final AgentConfig agentConfig;
 
     public CurrencySberAgent() {
+        this.agentConfig = EnumAgentsConfig.SBER_CURRENT.getAgentConfig();;
         options = new ChromeOptions();
         System.setProperty("webdriver.chrome.driver", "C:/chrome-win64/chromedriver.exe");
         options.addArguments("--headless=new");
@@ -44,7 +48,7 @@ public class CurrencySberAgent implements Agent {
     }
 
     @Override
-    public HashMap<String, JSONObject> getPrices(SberAgentCurrencyConfig agentConfig) {
+    public HashMap<String, JSONObject> getPrices() {
         createDriver();
         int iterations = getCountIterations(Currency.getCurrencyByBanks(Banks.SBER));
         int index = 0;
@@ -58,8 +62,13 @@ public class CurrencySberAgent implements Agent {
                 currencies.add(currency);
                 index++;
             }
-            url = String.format(agentConfig.getConfig(), currencyNames[0], currencyNames[1], currencyNames[2], currencyNames[3], currencyNames[4]);
-            goToPage();
+            String url = String.format(agentConfig.getUrl(),
+                    currencyNames[0],
+                    currencyNames[1],
+                    currencyNames[2],
+                    currencyNames[3],
+                    currencyNames[4]);
+            goToPage(url);
             result.putAll(getCurrenciesPrices(currencies));
             iterations--;
         }
@@ -82,7 +91,7 @@ public class CurrencySberAgent implements Agent {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
     }
 
-    private void goToPage() {
+    private void goToPage(String url) {
         driver.get(url);
         webDriver = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
@@ -117,10 +126,10 @@ public class CurrencySberAgent implements Agent {
         String index;
         switch (currentPrice) {
             case BUY:
-                index = SberAgentCurrencyConfig.INDEX_BUY.getConfig();
+                index = agentConfig.getIndexBuy();
                 break;
             case SELL:
-                index = SberAgentCurrencyConfig.INDEX_SELL.getConfig();
+                index = agentConfig.getIndexSell();
                 break;
             default:
                 index = "";
@@ -128,7 +137,7 @@ public class CurrencySberAgent implements Agent {
 
         return webDriver.until(
                 ExpectedConditions.presenceOfElementLocated(
-                        By.xpath(String.format(SberAgentCurrencyConfig.WEB_ELEMENT.getConfig(), currency.getDisplayName(), currency.name(), index))
+                        By.xpath(String.format(agentConfig.getWebElement(), currency.getDisplayName(), currency.name(), index))
                 )
         );
     }

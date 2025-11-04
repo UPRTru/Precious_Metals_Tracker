@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import prices.model.CurrencyPrice;
+import prices.model.MetalPrice;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,4 +25,8 @@ public interface CurrencyPriceRepository extends JpaRepository<CurrencyPrice, Lo
             @Param("name") String name,
             @Param("from") Long from,
             @Param("to") Long to);
+
+    @Query("SELECT p FROM CurrencyPrice p " +
+            "WHERE p.timestamp = (SELECT MAX(p2.timestamp) FROM CurrencyPrice p2 WHERE p2.name = p.name)")
+    List<MetalPrice> findLatestUniqueByName();
 }
