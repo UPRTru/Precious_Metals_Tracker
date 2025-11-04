@@ -2,8 +2,10 @@ package prices.controller.sber;
 
 import net.minidev.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
+import prices.model.CurrencyPrice;
 import prices.model.MetalPrice;
 import prices.repository.MetalPriceRepository;
+import prices.repository.CurrencyPriceRepository;
 
 import java.util.List;
 
@@ -44,12 +46,12 @@ public class SberPriceController {
     }
 
     @GetMapping("/currency/all")
-    public List<MetalPrice> getSberAllCurrency() {
+    public List<CurrencyPrice> getSberAllCurrency() {
         return currencyRepository.findLatestUniqueByName();
     }
 
     @GetMapping("/currency/history/{currencyName}")
-    public List<MetalPrice> getHistoryCurrency(
+    public List<CurrencyPrice> getHistoryCurrency(
             @PathVariable String currencyName,
             @RequestParam Long from,
             @RequestParam Long to) {

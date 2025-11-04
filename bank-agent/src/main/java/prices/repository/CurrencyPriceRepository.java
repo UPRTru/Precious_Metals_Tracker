@@ -28,5 +28,5 @@ public interface CurrencyPriceRepository extends JpaRepository<CurrencyPrice, Lo
 
     @Query("SELECT p FROM CurrencyPrice p " +
             "WHERE p.timestamp = (SELECT MAX(p2.timestamp) FROM CurrencyPrice p2 WHERE p2.name = p.name)")
-    List<MetalPrice> findLatestUniqueByName();
+    List<CurrencyPrice> findLatestUniqueByName();
 }
