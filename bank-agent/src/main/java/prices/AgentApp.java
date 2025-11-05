@@ -6,8 +6,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class SberAgentApp {
+public class AgentApp {
     public static void main(String[] args) {
-        SpringApplication.run(SberAgentApp.class, args);
+        SpringApplication.run(AgentApp.class, args);
     }
 }

@@ -1,11 +1,13 @@
 package prices.model;
 
+import com.precious.shared.model.JsonKeys;
 import jakarta.persistence.*;
 import net.minidev.json.JSONObject;
 import prices.utils.JsonUtils;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Objects;
 
 @Entity
@@ -22,14 +24,14 @@ public class MetalPrice {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, precision = 19, scale = 4)
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal buyPrice;
 
-    @Column(nullable = false, precision = 19, scale = 4)
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal sellPrice;
 
     @Column(nullable = false)
-    private Long timestamp = Instant.now().toEpochMilli();
+    private final Long timestamp = Instant.now().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
 
     @Column(nullable = false)
     private String bank;
@@ -76,7 +78,9 @@ public class MetalPrice {
     }
 
     public JSONObject toJsonObject() {
-        return JsonUtils.getPriceToJson(name, buyPrice, sellPrice, timestamp, bank);
+        JSONObject result = JsonUtils.getPriceToJson(name, buyPrice, sellPrice, timestamp, bank);
+        result = JsonUtils.addCustomField(result, JsonKeys.CustomFields.WEIGHT.getKey(), weight);
+        return result;
     }
 
     @Override

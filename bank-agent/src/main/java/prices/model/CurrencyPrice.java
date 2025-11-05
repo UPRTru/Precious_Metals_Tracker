@@ -6,6 +6,7 @@ import prices.utils.JsonUtils;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Objects;
 
 @Entity
@@ -29,7 +30,7 @@ public class CurrencyPrice {
     private BigDecimal sellPrice;
 
     @Column(nullable = false)
-    private Long timestamp = Instant.now().toEpochMilli();
+    private final Long timestamp = Instant.now().atZone(ZoneId.of("UTC")).toInstant().toEpochMilli();
 
     @Column(nullable = false)
     private String bank;

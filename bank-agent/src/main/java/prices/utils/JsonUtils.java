@@ -25,4 +25,9 @@ public class JsonUtils {
                 .appendField(JsonKeys.TIMESTAMP.getKey(), timestamp)
                 .appendField(JsonKeys.BANK.getKey(), bank);
     }
+
+    public static JSONObject addCustomField(JSONObject jsonObject, String key, String value) {
+        jsonObject.appendField(key, value);
+        return jsonObject;
+    }
 }
