@@ -1,16 +1,14 @@
 package prices.controller.sber;
 
+import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
-import prices.model.CurrencyPrice;
-import prices.model.MetalPrice;
-import prices.repository.MetalPriceRepository;
 import prices.repository.CurrencyPriceRepository;
-
-import java.util.List;
+import prices.repository.MetalPriceRepository;
+import prices.utils.JsonUtils;
 
 @RestController
-@RequestMapping("/sber/metal")
+@RequestMapping("/sber")
 public class SberPriceController {
 
     private final MetalPriceRepository metalRepository;
@@ -28,16 +26,16 @@ public class SberPriceController {
     }
 
     @GetMapping("/metal/all")
-    public List<MetalPrice> getSberAllMetal() {
-        return metalRepository.findLatestUniqueByName();
+    public JSONArray getSberAllMetal() {
+        return JsonUtils.mappingToJsonArray(metalRepository.findLatestUniqueByName());
     }
 
     @GetMapping("/metal/history/{metalName}")
-    public List<MetalPrice> getHistoryMetal(
+    public JSONArray getHistoryMetal(
             @PathVariable String metalName,
             @RequestParam Long from,
             @RequestParam Long to) {
-        return metalRepository.findByNameAndTimestampBetweenOrderByTimestampAsc(metalName, from, to);
+        return JsonUtils.mappingToJsonArray(metalRepository.findByNameAndTimestampBetweenOrderByTimestampAsc(metalName, from, to));
     }
 
     @GetMapping("/currency/lastprice/{currencyName}")
@@ -46,15 +44,15 @@ public class SberPriceController {
     }
 
     @GetMapping("/currency/all")
-    public List<CurrencyPrice> getSberAllCurrency() {
-        return currencyRepository.findLatestUniqueByName();
+    public JSONArray getSberAllCurrency() {
+        return JsonUtils.mappingToJsonArray(currencyRepository.findLatestUniqueByName());
     }
 
     @GetMapping("/currency/history/{currencyName}")
-    public List<CurrencyPrice> getHistoryCurrency(
+    public JSONArray getHistoryCurrency(
             @PathVariable String currencyName,
             @RequestParam Long from,
             @RequestParam Long to) {
-        return currencyRepository.findByNameAndTimestampBetweenOrderByTimestampAsc(currencyName, from, to);
+        return JsonUtils.mappingToJsonArray(currencyRepository.findByNameAndTimestampBetweenOrderByTimestampAsc(currencyName, from, to));
     }
 }

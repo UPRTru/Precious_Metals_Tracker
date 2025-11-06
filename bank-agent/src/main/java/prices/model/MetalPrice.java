@@ -15,7 +15,7 @@ import java.util.Objects;
         @Index(name = "idx_name", columnList = "name"),
         @Index(name = "idx_timestamp", columnList = "timestamp")
 })
-public class MetalPrice {
+public class MetalPrice implements PriceInterface {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -77,6 +77,7 @@ public class MetalPrice {
         return weight;
     }
 
+    @Override
     public JSONObject toJsonObject() {
         JSONObject result = JsonUtils.getPriceToJson(name, buyPrice, sellPrice, timestamp, bank);
         result = JsonUtils.addCustomField(result, JsonKeys.CustomFields.WEIGHT.getKey(), weight);

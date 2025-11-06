@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8080
 
 spring:
   datasource:
@@ -20,7 +20,6 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-
-general:
-  service:
-    url: http://localhost:8080
+bank:
+  agent:
+    url: http://localhost:8082

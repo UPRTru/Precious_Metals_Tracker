@@ -14,7 +14,7 @@ import java.util.Objects;
         @Index(name = "idx_name", columnList = "name"),
         @Index(name = "idx_timestamp", columnList = "timestamp")
 })
-public class CurrencyPrice {
+public class CurrencyPrice implements PriceInterface {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -69,6 +69,7 @@ public class CurrencyPrice {
         return bank;
     }
 
+    @Override
     public JSONObject toJsonObject() {
         return JsonUtils.getPriceToJson(name, buyPrice, sellPrice, timestamp, bank);
     }

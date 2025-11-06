@@ -1,0 +1,25 @@
+package com.precious.user.client;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
+
+@Component
+public class GeneralServiceClient {
+
+    @Value("${general.service.url}")
+    private String generalServiceUrl;
+
+    private final WebClient webClient;
+
+    public GeneralServiceClient() {
+        this.webClient = WebClient.create(generalServiceUrl);
+    }
+
+    public void checkScheduledPrice(String email, String json) {
+        webClient.post()
+                .uri("/check/?email=" + email)
+                .bodyValue(json)
+                .retrieve();
+    }
+}

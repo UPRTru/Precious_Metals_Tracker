@@ -1,7 +1,8 @@
 package prices.service;
 
-import com.precious.shared.model.*;
-import net.minidev.json.JSONArray;
+import com.precious.shared.model.Banks;
+import com.precious.shared.model.CurrentPrice;
+import com.precious.shared.model.TypePrice;
 import net.minidev.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,7 +12,6 @@ import prices.model.CurrencyPrice;
 import prices.model.MetalPrice;
 import prices.repository.CurrencyPriceRepository;
 import prices.repository.MetalPriceRepository;
-import prices.utils.JsonUtils;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -56,41 +56,6 @@ public class PriceService<T extends AgentConfig> {
                 }
             }
         }
-    }
-
-    public JSONArray getPrices(TypePrice typePrice) {
-        JSONArray array = new JSONArray();
-        switch (typePrice) {
-            case METAL -> {
-                for (Metal metal : Metal.values()) {
-                    array.add(getPrices(typePrice, metal.name()));
-                }
-            }
-            case CURRENCY -> {
-                for (Currency currency : Currency.values()) {
-                    array.add(getPrices(typePrice, currency.name()));
-                }
-            }
-        }
-        return array;
-    }
-
-    public JSONObject getPrices(TypePrice typePrice, String name) {
-        switch (typePrice) {
-            case METAL -> {
-                var latest = metalPriceRepository.findLatestByName(name);
-                if (!latest.isEmpty()) {
-                    return latest.get().toJsonObject();
-                }
-            }
-            case CURRENCY -> {
-                var latest = currencyPriceRepository.findLatestByName(name);
-                if (!latest.isEmpty()) {
-                    return latest.get().toJsonObject();
-                }
-            }
-        }
-        return JsonUtils.getPriceToJson(name, null, null, null, null);
     }
 
     private BigDecimal parsePrice(String text) {

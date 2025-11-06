@@ -1,6 +1,6 @@
 rootProject.name = 'precious-metals-tracker'
 
-//include 'gateway-service'
+include 'general-service'
 include 'user-service'
 include 'shared'
 include 'bank-agent'

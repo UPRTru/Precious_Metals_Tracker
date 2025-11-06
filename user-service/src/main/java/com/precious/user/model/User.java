@@ -21,8 +21,8 @@ public class User {
     @NotBlank
     private String password;
 
-    @Column(name = "scheduler_prices")
-    private List<SchedulerPrice> schedulerPrices;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ScheduledPrice> scheduledPrices;
 
     @Column(nullable = false)
     private String timezone;
@@ -30,9 +30,10 @@ public class User {
     public User() {
     }
 
-    public User(String email, String password) {
+    public User(String email, String password, String timezone) {
         this.email = email;
         this.password = password;
+        this.timezone = timezone;
     }
 
     public Long getId() {
@@ -55,16 +56,8 @@ public class User {
         this.password = password;
     }
 
-    public List<SchedulerPrice> getSchedulerPrices() {
-        return schedulerPrices;
-    }
-
-    public void addSchedulerPrice(SchedulerPrice schedulerPrice) {
-        this.schedulerPrices.add(schedulerPrice);
-    }
-
-    public void setSchedulerPrices(List<SchedulerPrice> preferences) {
-        this.schedulerPrices = schedulerPrices;
+    public List<ScheduledPrice> getScheduledPrices() {
+        return scheduledPrices;
     }
 
     public String getTimezone() {
