@@ -25,7 +25,10 @@ public class SchedulerPriceCheck {
         try {
             List<User> users = userService.getAllUsers();
             for (User user : users) {
-                user.getScheduledPrices().forEach(scheduledPrice -> generalServiceClient.checkScheduledPrice(user.getEmail(), scheduledPrice.getJson()));
+                user.getScheduledPrices()
+                        .forEach(
+                        scheduledPrice -> generalServiceClient.checkScheduledPrice(user.getEmail(), scheduledPrice.getJson())
+                        );
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

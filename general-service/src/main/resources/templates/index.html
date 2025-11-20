@@ -1,31 +1,80 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <title>Precious Metals Tracker</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Precious Metals & Currency Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .service { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
-        iframe { width: 100%; height: 300px; border: 1px solid #999; }
-        .hidden { display: none; }
+        .module-card { border-left: 4px solid #d4af37; }
+        .status-up { color: #28a745; }
+        .status-down { color: #dc3545; }
+        body { background-color: #f8f9fa; }
     </style>
 </head>
 <body>
-<h1>Главная панель</h1>
+<div class="container py-4">
+    <h1 class="mb-4">Дашборд: Precious Metals & Currency Tracker</h1>
 
-<div th:if="${userRegistered}">
-    <h2>Подключённые сервисы:</h2>
-    <div th:each="service : ${services}">
-        <div class="service">
-            <h3 th:text="${service.key}">Service</h3>
-            <iframe th:src="${service.value}" frameborder="0"></iframe>
+    <div class="row">
+        <!-- bank-agent -->
+        <div class="col-md-6 mb-4">
+            <div class="card module-card">
+                <div class="card-body">
+                    <h5 class="card-title">🏦 bank-agent</h5>
+                    <p class="card-text">Отслеживание курсов валют и драгметаллов от банков.</p>
+                    <span class="badge bg-success status-up">Активен</span>
+                    <div class="mt-2">
+                        <a href="/bank-agent" class="btn btn-outline-primary btn-sm">Открыть модуль</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- user-service -->
+        <div class="col-md-6 mb-4">
+            <div class="card module-card">
+                <div class="card-body">
+                    <h5 class="card-title">👤 user-service</h5>
+                    <p class="card-text">Управление пользователями и персональными настройками оповещений.</p>
+                    <span class="badge bg-success status-up">Активен</span>
+                    <div class="mt-2">
+                        <a href="/user-service" class="btn btn-outline-primary btn-sm">Открыть модуль</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-4">
+
+    <!-- Mini summary widget -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6>Золото (XAU)</h6>
+                    <h4 class="text-warning">2 530 $/oz</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6>Серебро (XAG)</h6>
+                    <h4 class="text-secondary">30.2 $/oz</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h6>USD/RUB</h6>
+                    <h4 class="text-primary">92.45</h4>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
-<div th:unless="${userRegistered}">
-    <p style="color: red;">Сервис пользователей не подключён. Другие сервисы недоступны.</p>
-</div>
-
 </body>
 </html>
