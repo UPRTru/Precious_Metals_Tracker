@@ -23,3 +23,6 @@ spring:
 bank:
   agent:
     url: http://localhost:8082
+user:
+  service:
+    url: http://localhost:8081

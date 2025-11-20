@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>User Service</title>
+    <style>
+        body { font-family: Arial; padding: 2rem; background: #f0f7ff; }
+        h1 { color: #8e44ad; }
+    </style>
+</head>
+<body>
+<h1>👥 User Service — Статистика</h1>
+<div id="summary">Загрузка...</div>
+<script>
+    fetch('/api/users/summary')
+        .then(r => r.json())
+        .then(data => {
+            const div = document.getElementById('summary');
+            div.innerHTML = `
+          <p><strong>Всего пользователей:</strong> ${data.totalUsers || 0}</p>
+          ${data.lastLogin ? `<p><strong>Последний вход:</strong> ${new Date(data.lastLogin).toLocaleString()}</p>` : ''}
+        `;
+        });
+</script>
+</body>
+</html>
