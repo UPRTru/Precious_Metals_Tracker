@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bank Agent</title>
+    <style>
+        body { font-family: Arial; padding: 2rem; background: #e8f4fc; }
+        h1 { color: #2980b9; }
+    </style>
+</head>
+<body>
+<h1>🏦 Bank Agent — Курсы валют и драгметаллов</h1>
+<div id="rates">Загрузка...</div>
+<script>
+    fetch('/api/bank/latest')
+        .then(r => r.json())
+        .then(data => {
+            const div = document.getElementById('rates');
+            if (data.rates) {
+                div.innerHTML = '<ul>' + data.rates.map(r =>
+                    `<li><strong>${r.name}:</strong> ${r.value} ${r.unit || ''}</li>`
+                ).join('') + '</ul>';
+            } else {
+                div.textContent = 'Данные не найдены';
+            }
+        });
+</script>
+</body>
+</html>

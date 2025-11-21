@@ -1,3 +1,0 @@
-chmod +x scripts/release.sh
-
-./scripts/release.sh
