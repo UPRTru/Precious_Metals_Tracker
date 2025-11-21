@@ -5,11 +5,11 @@ import net.minidev.json.JSONObject;
 
 public class DtoPrice {
 
-    String bank;
-    String typePrice;
-    String name;
-    String currentPrice;
-    String price;
+    private final String bank;
+    private final String typePrice;
+    private final String name;
+    private final String currentPrice;
+    private final String price;
 
     public DtoPrice(String bank, String typePrice, String name, String currentPrice, String price) {
         this.bank = bank;

@@ -1,10 +1,13 @@
 package com.precious.user.controller;
 
+import com.precious.shared.model.JsonKeys;
 import com.precious.user.model.DtoPrice;
 import com.precious.user.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import net.minidev.json.JSONObject;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -52,8 +55,8 @@ public class UserController {
     }
 
     @PostMapping("/add/scheduled_price")
-    public void addScheduledPrice(@Valid String email, @Valid DtoPrice dtoPrice) {
-        userService.addScheduledPrice(email, dtoPrice.toJson());
+    public void addScheduledPrice(@Valid String email, @Valid Price Price) {
+        userService.addScheduledPrice(email, Price.toJson());
     }
 
     // Widget для встраивания в gateway
@@ -62,13 +65,16 @@ public class UserController {
         return "widget";
     }
 
-    public static class RegistrationForm {
-        @NotBlank
-        @Email
-        public String email;
-        @NotBlank
-        public String password;
-        @NotBlank
-        public String timezone;
+    private record Price(@NonNull String bank, @NonNull String typePrice, @NonNull String name, @NonNull String currentPrice, @NonNull String price) {
+        public JSONObject toJson() {
+            return new JSONObject()
+                    .appendField(JsonKeys.BANK.getKey(), bank)
+                    .appendField(JsonKeys.TYPE_PRICE.getKey(), typePrice)
+                    .appendField(JsonKeys.NAME.getKey(), name)
+                    .appendField(JsonKeys.CURRENT_PRICE.getKey(), currentPrice)
+                    .appendField(JsonKeys.CustomFields.PRICE.getKey(), price);
+        }
     }
+
+    public record RegistrationForm(@NotBlank @Email String email, @NotBlank String password, @NotBlank String timezone) {}
 }
