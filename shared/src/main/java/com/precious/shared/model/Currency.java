@@ -1,7 +1,10 @@
 package com.precious.shared.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public enum Currency {
     USD("Доллар США", List.of(Banks.SBER)),
@@ -43,13 +46,11 @@ public enum Currency {
         return banks;
     }
 
-    public static Currency fromDisplayName(String name) {
-        for (Currency c : values()) {
-            if (c.displayName.equalsIgnoreCase(name)) {
-                return c;
-            }
-        }
-        throw new IllegalArgumentException("Unknown currency: " + name);
+    private static final Map<String, Currency> BY_NAME = Arrays.stream(values())
+            .collect(Collectors.toUnmodifiableMap(Currency::getDisplayName, m -> m));
+
+    public static java.util.Optional<Currency> fromDisplayName(String name) {
+        return java.util.Optional.ofNullable(BY_NAME.get(name));
     }
 
     public static List<Currency> getCurrencyByBanks(Banks bank) {

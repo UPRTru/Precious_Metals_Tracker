@@ -1,5 +1,9 @@
 package com.precious.shared.model;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 public enum Metal {
     GOLD("Золото"),
     SILVER("Серебро"),
@@ -16,12 +20,10 @@ public enum Metal {
         return displayName;
     }
 
-    public static Metal fromDisplayName(String name) {
-        for (Metal m : values()) {
-            if (m.displayName.equalsIgnoreCase(name)) {
-                return m;
-            }
-        }
-        throw new IllegalArgumentException("Unknown metal: " + name);
+    private static final Map<String, Metal> BY_NAME = Arrays.stream(values())
+            .collect(Collectors.toUnmodifiableMap(Metal::getDisplayName, m -> m));
+
+    public static java.util.Optional<Metal> fromDisplayName(String name) {
+        return java.util.Optional.ofNullable(BY_NAME.get(name));
     }
 }
