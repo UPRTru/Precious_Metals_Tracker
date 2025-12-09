@@ -1,6 +1,6 @@
 package com.precious.user.model;
 
-import com.precious.shared.model.JsonKeys;
+import com.precious.shared.enums.JsonKeys;
 import net.minidev.json.JSONObject;
 
 public class DtoPrice {

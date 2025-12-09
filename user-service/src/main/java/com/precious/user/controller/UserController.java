@@ -1,7 +1,6 @@
 package com.precious.user.controller;
 
-import com.precious.shared.model.JsonKeys;
-import com.precious.user.model.DtoPrice;
+import com.precious.shared.enums.JsonKeys;
 import com.precious.user.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;

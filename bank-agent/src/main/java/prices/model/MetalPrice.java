@@ -1,6 +1,6 @@
 package prices.model;
 
-import com.precious.shared.model.JsonKeys;
+import com.precious.shared.enums.JsonKeys;
 import jakarta.persistence.*;
 import net.minidev.json.JSONObject;
 import prices.utils.JsonUtils;

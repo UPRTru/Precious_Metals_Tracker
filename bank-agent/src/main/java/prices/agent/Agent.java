@@ -1,10 +1,10 @@
 package prices.agent;
 
-import net.minidev.json.JSONObject;
+import com.precious.shared.dto.Price;
 
 import java.util.HashMap;
 
 public interface Agent {
 
-    HashMap<String, JSONObject> getPrices();
+    HashMap<String, Price> getPrices();
 }

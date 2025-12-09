@@ -1,24 +1,26 @@
 package prices.agent.sber.currency;
 
-import com.precious.shared.model.Banks;
-import com.precious.shared.model.Currency;
-import com.precious.shared.model.CurrentPrice;
+import com.precious.shared.dto.Price;
+import com.precious.shared.enums.Banks;
+import com.precious.shared.enums.Currency;
+import com.precious.shared.enums.CurrentPrice;
 import net.minidev.json.JSONObject;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Component;
 import prices.agent.Agent;
 import prices.agent.AgentConfig;
 import prices.agent.EnumAgentsConfig;
+import prices.agent.WebDriverSupport;
+import prices.builder.PriceBuilder;
+import prices.model.CurrencyPrice;
 import prices.utils.JsonUtils;
 
-import java.time.Duration;
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -26,33 +28,22 @@ import java.util.List;
 public class CurrencySberAgent implements Agent {
 
     public static final String AGENT_NAME = "sber agent current";
+    private static final int MAX_COUNT_CURRENCY = 5;
 
-    private final ChromeOptions options;
-    private WebDriver driver;
-    private WebDriverWait webDriver;
-    private final int MAX_COUNT_CURRENCY = 5;
     private final AgentConfig agentConfig;
+    private final WebDriverSupport webDriverSupport;
 
     public CurrencySberAgent() {
-        this.agentConfig = EnumAgentsConfig.SBER_CURRENT.getAgentConfig();;
-        options = new ChromeOptions();
-        System.setProperty("webdriver.chrome.driver", "C:/chrome-win64/chromedriver.exe");
-        options.addArguments("--headless=new");
-        options.addArguments("--no-sandbox");
-        options.addArguments("--disable-dev-shm-usage");
-        options.addArguments("--disable-gpu");
-        options.addArguments("--window-size=1920,1080");
-        options.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36");
-        options.setExperimentalOption("useAutomationExtension", false);
-        options.setExperimentalOption("excludeSwitches", new String[]{"enable-automation"});
+        agentConfig = EnumAgentsConfig.SBER_CURRENT.getAgentConfig();
+        webDriverSupport = new WebDriverSupport();
     }
 
     @Override
-    public HashMap<String, JSONObject> getPrices() {
-        createDriver();
+    public HashMap<String, Price> getPrices() {
+        webDriverSupport.createDriver();
         int iterations = getCountIterations(Currency.getCurrencyByBanks(Banks.SBER));
         int index = 0;
-        HashMap<String, JSONObject> result = new HashMap<>(Currency.values().length);
+        HashMap<String, Price> result = new HashMap<>(Currency.values().length);
         while (iterations > 0) {
             List<Currency> currencies = new ArrayList<>(MAX_COUNT_CURRENCY);
             String[] currencyNames = new String[MAX_COUNT_CURRENCY];
@@ -68,11 +59,13 @@ public class CurrencySberAgent implements Agent {
                     currencyNames[2],
                     currencyNames[3],
                     currencyNames[4]);
-            goToPage(url);
-            result.putAll(getCurrenciesPrices(currencies));
+            webDriverSupport.goToPage(url);
+            currencies.forEach(currency -> {
+                result.put(currency.name(), new Price(Banks.SBER.name(), currency.getDisplayName(), getCurrencyPrice(currency, CurrentPrice.BUY), getCurrencyPrice(currency, CurrentPrice.SELL), Instant.now().toEpochMilli()));
+            });
             iterations--;
         }
-        closeDriver();
+        webDriverSupport.closeDriver();
         return result;
     }
 
@@ -86,40 +79,9 @@ public class CurrencySberAgent implements Agent {
         }
     }
 
-    private void createDriver() {
-        driver = new ChromeDriver(options);
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
-    }
-
-    private void goToPage(String url) {
-        driver.get(url);
-        webDriver = new WebDriverWait(driver, Duration.ofSeconds(10));
-    }
-
-    private void closeDriver() {
-        driver.quit();
-    }
-
-    private HashMap<String, JSONObject> getCurrenciesPrices(List<Currency> currencies) {
-        HashMap<String, JSONObject> result = new HashMap<>();
-        for (Currency currency : currencies) {
-            result.putAll(getCurrencyPrices(currency));
-        }
-        return result;
-    }
-
-    private HashMap<String, JSONObject> getCurrencyPrices(Currency currency) {
-        JSONObject jsonObject = JsonUtils.createJsonObject(currency.name());
-        getJsonCurrencyPrice(jsonObject, currency, CurrentPrice.BUY);
-        getJsonCurrencyPrice(jsonObject, currency, CurrentPrice.SELL);
-        HashMap<String, JSONObject> result = new HashMap<>();
-        result.put(currency.name(), jsonObject);
-        return result;
-    }
-
-    private void getJsonCurrencyPrice(JSONObject jsonObject, Currency currency, CurrentPrice currentPrice) {
+    private BigDecimal getCurrencyPrice(Currency currency, CurrentPrice currentPrice) {
         WebElement webElement = getWebElement(currency, currentPrice);
-        JsonUtils.appendPrice(jsonObject, currentPrice, webElement.getText());
+        return BigDecimal.valueOf(Double.valueOf(webElement.getText()));
     }
 
     private WebElement getWebElement(Currency currency, CurrentPrice currentPrice) {
@@ -135,7 +97,7 @@ public class CurrencySberAgent implements Agent {
                 index = "";
         }
 
-        return webDriver.until(
+        return webDriverSupport.getWebDriver().until(
                 ExpectedConditions.presenceOfElementLocated(
                         By.xpath(String.format(agentConfig.getWebElement(), currency.getDisplayName(), currency.name(), index))
                 )

@@ -1,11 +1,9 @@
 package prices.utils;
 
-import com.precious.shared.model.CurrentPrice;
-import com.precious.shared.model.JsonKeys;
+import com.precious.shared.enums.CurrentPrice;
+import com.precious.shared.enums.JsonKeys;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import prices.model.CurrencyPrice;
-import prices.model.MetalPrice;
 import prices.model.PriceInterface;
 
 import java.math.BigDecimal;

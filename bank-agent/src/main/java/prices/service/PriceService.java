@@ -1,8 +1,8 @@
 package prices.service;
 
-import com.precious.shared.model.Banks;
-import com.precious.shared.model.CurrentPrice;
-import com.precious.shared.model.TypePrice;
+import com.precious.shared.enums.Banks;
+import com.precious.shared.enums.CurrentPrice;
+import com.precious.shared.enums.TypePrice;
 import net.minidev.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

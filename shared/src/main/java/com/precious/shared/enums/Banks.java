@@ -1,4 +1,4 @@
-package com.precious.shared.model;
+package com.precious.shared.enums;
 
 public enum Banks {
     SBER("Сбербанк");

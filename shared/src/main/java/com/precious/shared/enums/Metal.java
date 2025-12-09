@@ -1,4 +1,4 @@
-package com.precious.shared.model;
+package com.precious.shared.enums;
 
 import java.util.Arrays;
 import java.util.Map;

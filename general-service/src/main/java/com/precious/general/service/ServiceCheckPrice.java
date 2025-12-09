@@ -1,10 +1,10 @@
 package com.precious.general.service;
 
 import com.precious.general.client.BankAgentClient;
-import com.precious.shared.model.Banks;
-import com.precious.shared.model.CurrentPrice;
-import com.precious.shared.model.JsonKeys;
-import com.precious.shared.model.TypePrice;
+import com.precious.shared.enums.Banks;
+import com.precious.shared.enums.CurrentPrice;
+import com.precious.shared.enums.JsonKeys;
+import com.precious.shared.enums.TypePrice;
 import net.minidev.json.JSONObject;
 import org.springframework.stereotype.Service;
 

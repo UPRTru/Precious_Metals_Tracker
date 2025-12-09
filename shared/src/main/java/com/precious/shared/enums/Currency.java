@@ -1,4 +1,4 @@
-package com.precious.shared.model;
+package com.precious.shared.enums;
 
 import java.util.ArrayList;
 import java.util.Arrays;
