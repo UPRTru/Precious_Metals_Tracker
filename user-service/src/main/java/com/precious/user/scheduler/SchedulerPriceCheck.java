@@ -27,7 +27,7 @@ public class SchedulerPriceCheck {
             for (User user : users) {
                 user.getScheduledPrices()
                         .forEach(
-                        scheduledPrice -> generalServiceClient.checkScheduledPrice(user.getEmail(), scheduledPrice.getJson())
+                        scheduledPrice -> generalServiceClient.checkScheduledPrice(user.getEmail(), scheduledPrice.getCheckPrice())
                         );
             }
         } catch (Exception e) {

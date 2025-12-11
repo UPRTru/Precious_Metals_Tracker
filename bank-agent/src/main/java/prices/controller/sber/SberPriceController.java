@@ -1,11 +1,16 @@
 package prices.controller.sber;
 
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
+import com.precious.shared.dto.Price;
 import org.springframework.web.bind.annotation.*;
+import prices.builder.PriceBuilder;
+import prices.model.CurrencyPrice;
+import prices.model.MetalPrice;
 import prices.repository.CurrencyPriceRepository;
 import prices.repository.MetalPriceRepository;
-import prices.utils.JsonUtils;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/sber")
@@ -21,38 +26,50 @@ public class SberPriceController {
     }
 
     @GetMapping("/metal/lastprice/{metalName}")
-    public JSONObject getSberLatestMetal(@PathVariable String metalName) {
-        return metalRepository.findLatestByName(metalName).get().toJsonObject();
+    public Price getSberLatestMetal(@PathVariable String metalName) {
+        Optional<MetalPrice> metalPrice = metalRepository.findLatestByName(metalName);
+        if (metalPrice.isEmpty()) {
+            throw new RuntimeException();
+        }
+        return PriceBuilder.buildPrice(metalPrice.get());
     }
 
     @GetMapping("/metal/all")
-    public JSONArray getSberAllMetal() {
-        return JsonUtils.mappingToJsonArray(metalRepository.findLatestUniqueByName());
+    public List<Price> getSberAllMetal() {
+        return metalRepository.findLatestUniqueByName()
+                .stream().map(PriceBuilder::buildPrice).collect(Collectors.toList());
     }
 
     @GetMapping("/metal/history/{metalName}")
-    public JSONArray getHistoryMetal(
+    public List<Price> getHistoryMetal(
             @PathVariable String metalName,
             @RequestParam Long from,
             @RequestParam Long to) {
-        return JsonUtils.mappingToJsonArray(metalRepository.findByNameAndTimestampBetweenOrderByTimestampAsc(metalName, from, to));
+        return metalRepository.findByNameAndTimestampBetweenOrderByTimestampAsc(metalName, from, to)
+                .stream().map(PriceBuilder::buildPrice).collect(Collectors.toList());
     }
 
     @GetMapping("/currency/lastprice/{currencyName}")
-    public JSONObject getSberLatestCurrency(@PathVariable String currencyName) {
-        return currencyRepository.findLatestByName(currencyName).get().toJsonObject();
+    public Price getSberLatestCurrency(@PathVariable String currencyName) {
+        Optional<CurrencyPrice> currencyPrice = currencyRepository.findLatestByName(currencyName);
+        if (currencyPrice.isEmpty()) {
+            throw new RuntimeException();
+        }
+        return PriceBuilder.buildPrice(currencyPrice.get());
     }
 
     @GetMapping("/currency/all")
-    public JSONArray getSberAllCurrency() {
-        return JsonUtils.mappingToJsonArray(currencyRepository.findLatestUniqueByName());
+    public List<Price> getSberAllCurrency() {
+        return currencyRepository.findLatestUniqueByName()
+                .stream().map(PriceBuilder::buildPrice).collect(Collectors.toList());
     }
 
     @GetMapping("/currency/history/{currencyName}")
-    public JSONArray getHistoryCurrency(
+    public List<Price> getHistoryCurrency(
             @PathVariable String currencyName,
             @RequestParam Long from,
             @RequestParam Long to) {
-        return JsonUtils.mappingToJsonArray(currencyRepository.findByNameAndTimestampBetweenOrderByTimestampAsc(currencyName, from, to));
+        return currencyRepository.findByNameAndTimestampBetweenOrderByTimestampAsc(currencyName, from, to)
+                .stream().map(PriceBuilder::buildPrice).collect(Collectors.toList());
     }
 }

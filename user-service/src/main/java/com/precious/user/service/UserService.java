@@ -1,10 +1,10 @@
 package com.precious.user.service;
 
+import com.precious.shared.dto.CheckPrice;
 import com.precious.user.model.ScheduledPrice;
 import com.precious.user.model.User;
 import com.precious.user.repository.ScheduledPriceRepository;
 import com.precious.user.repository.UserRepository;
-import net.minidev.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,23 +22,23 @@ public class UserService {
         this.scheduledPriceRepository = scheduledPriceRepository;
     }
 
-    public User register(String email, String rawPassword, String timezone) {
+    public void register(String email, String rawPassword, String timezone) {
         if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Пользователь с таким email уже существует");
         }
         User user = new User(email, rawPassword, timezone);
-        return userRepository.save(user);
+        userRepository.save(user);
     }
 
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    public void addScheduledPrice(String email, JSONObject json) {
+    public void addScheduledPrice(String email, CheckPrice checkPrice) {
         User user = findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
 
-        ScheduledPrice scheduledPrice = new ScheduledPrice(user, json.toJSONString());
+        ScheduledPrice scheduledPrice = new ScheduledPrice(user, checkPrice.bank().name(), checkPrice.typePrice().name(), checkPrice.currentPrice().name(), checkPrice.name(), checkPrice.price());
         scheduledPriceRepository.save(scheduledPrice);
     }
 

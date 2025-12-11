@@ -16,12 +16,11 @@ import java.util.Random;
 @Component
 public class ScheduledPriceUpdater {
 
+    private static final Logger log = LoggerFactory.getLogger(ScheduledPriceUpdater.class);
+
     private final Random random = new Random();
     private final Agent metalAgent;
     private final Agent currencyAgent;
-
-    private static final Logger log = LoggerFactory.getLogger(ScheduledPriceUpdater.class);
-
     private final PriceService priceService;
 
     public ScheduledPriceUpdater(@Qualifier(CurrencySberAgent.AGENT_NAME) Agent metalAgent,

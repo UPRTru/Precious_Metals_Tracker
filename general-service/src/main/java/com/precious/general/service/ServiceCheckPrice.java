@@ -1,12 +1,15 @@
 package com.precious.general.service;
 
 import com.precious.general.client.BankAgentClient;
+import com.precious.shared.dto.CheckPrice;
+import com.precious.shared.dto.Price;
 import com.precious.shared.enums.Banks;
 import com.precious.shared.enums.CurrentPrice;
-import com.precious.shared.enums.JsonKeys;
 import com.precious.shared.enums.TypePrice;
-import net.minidev.json.JSONObject;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.Duration;
 
 @Service
 public class ServiceCheckPrice {
@@ -17,36 +20,31 @@ public class ServiceCheckPrice {
         this.bankAgentClient = bankAgentClient;
     }
 
-    public void checkPrice(String email, JSONObject jsonObject) {
-        Banks bank = Banks.valueOf(jsonObject.getAsString(JsonKeys.BANK.getKey()));
-        TypePrice typePrice = TypePrice.valueOf(jsonObject.getAsString(JsonKeys.TYPE_PRICE.getKey()));
-        String name = jsonObject.getAsString(JsonKeys.NAME.getKey());
-        CurrentPrice currentPrice = CurrentPrice.valueOf(jsonObject.getAsString(JsonKeys.CustomFields.PRICE.getKey()));
-        double price = Double.parseDouble(jsonObject.getAsString(JsonKeys.CustomFields.PRICE.getKey()));
+    public void checkPrice(String email, CheckPrice checkPrice) {
+        Banks bank = checkPrice.bank();
+        TypePrice typePrice = checkPrice.typePrice();
+        CurrentPrice currentPrice = checkPrice.currentPrice();
+        String name = checkPrice.name();
+        BigDecimal price = checkPrice.price();
+        Price newPrice = getNewPrice(typePrice, bank, name);
 
-        JSONObject getObject = getDataPrice(typePrice, bank, name);
-
-        double buyPrice = Double.parseDouble(getObject.getAsString(JsonKeys.BUY_PRICE.getKey()));
-        double sellPrice = Double.parseDouble(getObject.getAsString(JsonKeys.SELL_PRICE.getKey()));
-
-        if (priceComparison(price, buyPrice, sellPrice, currentPrice)) {
+        if (priceComparison(currentPrice, price, newPrice.buyPrice(), newPrice.sellPrice())) {
             sendEmail(email);
         }
     }
 
-    private JSONObject getDataPrice(TypePrice typePrice, Banks bank, String name) {
+    private Price getNewPrice(TypePrice typePrice, Banks bank, String name) {
         return switch (typePrice) {
-            case METAL -> bankAgentClient.getLatestMetal(bank, name).blockFirst();
-            case CURRENCY -> bankAgentClient.getLatestCurrency(bank, name).blockFirst();
+            case METAL -> bankAgentClient.getLatestMetal(bank, name).block(Duration.ofSeconds(10));
+            case CURRENCY -> bankAgentClient.getLatestCurrency(bank, name).block(Duration.ofSeconds(10));
             default -> throw new IllegalStateException("Unexpected value: " + typePrice);
         };
     }
 
-    private boolean priceComparison(double price, double buyPrice, double sellPrice, CurrentPrice currentPrice) {
+    private boolean priceComparison(CurrentPrice currentPrice, BigDecimal price, BigDecimal buyPrice, BigDecimal sellPrice) {
         return switch (currentPrice) {
-            case BUY -> buyPrice <= price;
-            case SELL -> sellPrice >= price;
-            default -> throw new IllegalStateException("Unexpected value: " + currentPrice);
+            case BUY -> buyPrice.compareTo(price) <= 0;
+            case SELL -> sellPrice.compareTo(price) >= 0;
         };
     }
 

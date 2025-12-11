@@ -1,5 +1,6 @@
 package com.precious.user.client;
 
+import com.precious.shared.dto.CheckPrice;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -16,10 +17,10 @@ public class GeneralServiceClient {
         this.webClient = WebClient.create(generalServiceUrl);
     }
 
-    public void checkScheduledPrice(String email, String json) {
+    public void checkScheduledPrice(String email, CheckPrice checkPrice) {
         webClient.post()
                 .uri("/check/?email=" + email)
-                .bodyValue(json)
+                .bodyValue(checkPrice)
                 .retrieve();
     }
 }

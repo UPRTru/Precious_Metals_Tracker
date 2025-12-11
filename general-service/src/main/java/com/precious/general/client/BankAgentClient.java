@@ -1,12 +1,14 @@
 package com.precious.general.client;
 
+import com.precious.shared.dto.Price;
 import com.precious.shared.enums.Banks;
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Component
 public class BankAgentClient {
@@ -20,36 +22,40 @@ public class BankAgentClient {
         this.webClient = WebClient.create(bankAgentUrl);
     }
 
-    public Flux<JSONArray> getAllMetal(Banks bank) {
+    public Mono<List<Price>> getAllMetal(Banks bank) {
         return webClient.get()
                 .uri("/" + bank.name().toLowerCase() + "/metal/all")
                 .retrieve()
-                .bodyToFlux(JSONArray.class);
+                .bodyToMono(new ParameterizedTypeReference<List<Price>>() {
+                });
     }
 
-    public Flux<JSONArray> getAllCurrency(Banks bank) {
+    public Mono<List<Price>> getAllCurrency(Banks bank) {
         return webClient.get()
                 .uri("/" + bank.name().toLowerCase() + "/currency/all")
                 .retrieve()
-                .bodyToFlux(JSONArray.class);
+                .bodyToMono(new ParameterizedTypeReference<List<Price>>() {
+                });
     }
 
-    public Flux<JSONObject> getLatestMetal(Banks bank, String metalName) {
+    public Mono<Price> getLatestMetal(Banks bank, String metalName) {
         return webClient.get()
                 .uri("/" + bank.name().toLowerCase() + "/metal/lastprice/?metalName=" + metalName)
                 .retrieve()
-                .bodyToFlux(JSONObject.class);
+                .bodyToMono(new ParameterizedTypeReference<Price>() {
+                });
     }
 
-    public Flux<JSONObject> getLatestCurrency(Banks bank, String currencyName) {
+    public Mono<Price> getLatestCurrency(Banks bank, String currencyName) {
         return webClient.get()
                 .uri("/" + bank.name().toLowerCase() + "/currency/lastprice/?currencyName=" + currencyName)
                 .retrieve()
-                .bodyToFlux(JSONObject.class);
+                .bodyToMono(new ParameterizedTypeReference<Price>() {
+                });
     }
 
 
-    public Flux<JSONArray> getHistoryMetal(Banks bank, String metalName, long from, long to) {
+    public Mono<List<Price>> getHistoryMetal(Banks bank, String metalName, long from, long to) {
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/{bank}/metal/history/{metalName}")
@@ -57,10 +63,11 @@ public class BankAgentClient {
                         .queryParam("to", to)
                         .build(bank.name().toLowerCase(), metalName))
                 .retrieve()
-                .bodyToFlux(JSONArray.class);
+                .bodyToMono(new ParameterizedTypeReference<List<Price>>() {
+                });
     }
 
-    public Flux<JSONArray> getHistoryCurrency(Banks bank, String currencyName, long from, long to) {
+    public Mono<List<Price>> getHistoryCurrency(Banks bank, String currencyName, long from, long to) {
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/{bank}/currency/history/{currencyName}")
@@ -68,6 +75,7 @@ public class BankAgentClient {
                         .queryParam("to", to)
                         .build(bank.name().toLowerCase(), currencyName))
                 .retrieve()
-                .bodyToFlux(JSONArray.class);
+                .bodyToMono(new ParameterizedTypeReference<List<Price>>() {
+                });
     }
 }

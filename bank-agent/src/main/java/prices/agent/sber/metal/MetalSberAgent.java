@@ -1,8 +1,9 @@
 package prices.agent.sber.metal;
 
+import com.precious.shared.dto.Price;
+import com.precious.shared.enums.Banks;
 import com.precious.shared.enums.CurrentPrice;
 import com.precious.shared.enums.Metal;
-import net.minidev.json.JSONObject;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -11,12 +12,15 @@ import prices.agent.Agent;
 import prices.agent.AgentConfig;
 import prices.agent.EnumAgentsConfig;
 import prices.agent.WebDriverSupport;
-import prices.utils.JsonUtils;
 
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.HashMap;
 
 @Component(MetalSberAgent.AGENT_NAME)
 public class MetalSberAgent implements Agent {
+
+    //todo рассчитывать стоимость на 1 грамм
 
     public static final String AGENT_NAME = "sber agent metal";
 
@@ -24,54 +28,47 @@ public class MetalSberAgent implements Agent {
     private final WebDriverSupport webDriverSupport;
 
     public MetalSberAgent() {
-        agentConfig = EnumAgentsConfig.SBER_METAL.getAgentConfig();
-        webDriverSupport = new WebDriverSupport();
+        this.agentConfig = EnumAgentsConfig.SBER_METAL.getAgentConfig();
+        this.webDriverSupport = new WebDriverSupport();
     }
 
     @Override
-    public HashMap<String, JSONObject> getPrices() {
+    public HashMap<String, Price> getPrices() {
         webDriverSupport.createDriver();
         webDriverSupport.goToPage(agentConfig.getUrl());
-        HashMap<String, JSONObject> result = getMetalsPrices();
+        HashMap<String, Price> result = getMetalsPrices();
         webDriverSupport.closeDriver();
         return result;
     }
 
-    private HashMap<String, JSONObject> getMetalsPrices() {
-        HashMap<String, JSONObject> result = new HashMap<>();
+    private HashMap<String, Price> getMetalsPrices() {
+        HashMap<String, Price> result = new HashMap<>();
         for (Metal metal : Metal.values()) {
-            result.putAll(getMetalPrices(metal));
+            Price price = getMetalPrices(metal);
+            result.put(price.name(), price);
         }
         return result;
     }
 
-    private HashMap<String, JSONObject> getMetalPrices(Metal metal) {
-        JSONObject jsonObject = JsonUtils.createJsonObject(metal.name());
-        getJsonMetalPrice(jsonObject, metal, CurrentPrice.BUY);
-        getJsonMetalPrice(jsonObject, metal, CurrentPrice.SELL);
-        HashMap<String, JSONObject> result = new HashMap<>();
-        result.put(metal.name(), jsonObject);
-        return result;
+    private Price getMetalPrices(Metal metal) {
+        return new Price(Banks.SBER,
+                metal.getDisplayName(),
+                getJsonMetalPrice(metal, CurrentPrice.BUY),
+                getJsonMetalPrice(metal, CurrentPrice.SELL),
+                Instant.now().toEpochMilli());
     }
 
-    private void getJsonMetalPrice(JSONObject jsonObject, Metal metal, CurrentPrice currentPrice) {
+    private BigDecimal getJsonMetalPrice(Metal metal, CurrentPrice currentPrice) {
         WebElement webElement = getWebElement(metal, currentPrice);
-        JsonUtils.appendPrice(jsonObject, currentPrice, webElement.getText());
+        String clean = webElement.getText().replaceAll("[^\\d,\\.]", "").replace(',', '.');
+        return new BigDecimal(clean);
     }
 
     private WebElement getWebElement(Metal metal, CurrentPrice currentPrice) {
-        String index;
-        switch (currentPrice) {
-            case BUY:
-                index = agentConfig.getIndexBuy();
-                break;
-            case SELL:
-                index = agentConfig.getIndexSell();
-                break;
-            default:
-                index = "";
-        }
-
+        String index = switch (currentPrice) {
+            case BUY -> agentConfig.getIndexBuy();
+            case SELL -> agentConfig.getIndexSell();
+        };
         return webDriverSupport.getWebDriver().until(
                 ExpectedConditions.presenceOfElementLocated(
                         By.xpath(String.format(agentConfig.getWebElement(), metal.getDisplayName(), index))

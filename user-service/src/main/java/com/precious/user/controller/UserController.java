@@ -1,12 +1,10 @@
 package com.precious.user.controller;
 
-import com.precious.shared.enums.JsonKeys;
+import com.precious.shared.dto.CheckPrice;
 import com.precious.user.service.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import net.minidev.json.JSONObject;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,7 +22,7 @@ public class UserController {
 
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
-        model.addAttribute("user", new RegistrationForm());
+        model.addAttribute("user", new RegistrationForm("email", "password", "timezone"));
         return "register";
     }
 
@@ -54,8 +52,8 @@ public class UserController {
     }
 
     @PostMapping("/add/scheduled_price")
-    public void addScheduledPrice(@Valid String email, @Valid Price Price) {
-        userService.addScheduledPrice(email, Price.toJson());
+    public void addScheduledPrice(@Valid String email, @Valid CheckPrice checkPrice) {
+        userService.addScheduledPrice(email, checkPrice);
     }
 
     // Widget для встраивания в gateway
@@ -64,16 +62,7 @@ public class UserController {
         return "widget";
     }
 
-    private record Price(@NonNull String bank, @NonNull String typePrice, @NonNull String name, @NonNull String currentPrice, @NonNull String price) {
-        public JSONObject toJson() {
-            return new JSONObject()
-                    .appendField(JsonKeys.BANK.getKey(), bank)
-                    .appendField(JsonKeys.TYPE_PRICE.getKey(), typePrice)
-                    .appendField(JsonKeys.NAME.getKey(), name)
-                    .appendField(JsonKeys.CURRENT_PRICE.getKey(), currentPrice)
-                    .appendField(JsonKeys.CustomFields.PRICE.getKey(), price);
-        }
+    public record RegistrationForm(@NotBlank @Email String email, @NotBlank String password,
+                                   @NotBlank String timezone) {
     }
-
-    public record RegistrationForm(@NotBlank @Email String email, @NotBlank String password, @NotBlank String timezone) {}
 }

@@ -1,8 +1,6 @@
 package prices.model;
 
 import jakarta.persistence.*;
-import net.minidev.json.JSONObject;
-import prices.utils.JsonUtils;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -14,7 +12,7 @@ import java.util.Objects;
         @Index(name = "idx_name", columnList = "name"),
         @Index(name = "idx_timestamp", columnList = "timestamp")
 })
-public class CurrencyPrice implements PriceInterface {
+public class CurrencyPrice implements Priced {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,29 +47,29 @@ public class CurrencyPrice implements PriceInterface {
         return id;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public BigDecimal getBuyPrice() {
         return buyPrice;
     }
 
+    @Override
     public BigDecimal getSellPrice() {
         return sellPrice;
     }
 
+    @Override
     public Long getTimestamp() {
         return timestamp;
     }
 
+    @Override
     public String getBank() {
         return bank;
-    }
-
-    @Override
-    public JSONObject toJsonObject() {
-        return JsonUtils.getPriceToJson(name, buyPrice, sellPrice, timestamp, bank);
     }
 
     @Override
@@ -87,4 +85,6 @@ public class CurrencyPrice implements PriceInterface {
     public int hashCode() {
         return Objects.hash(name, buyPrice, sellPrice);
     }
+
+
 }
