@@ -20,7 +20,7 @@ public class DashboardController {
     @GetMapping("/api/users/summary")
     @ResponseBody
     public Map<String, Object> userSummary() {
-        // Замените на реальный запрос к БД
+        //todo Замените на реальный запрос к БД
         return Map.of(
                 "totalUsers", 142,
                 "lastLogin", System.currentTimeMillis() - 3600000 // 1 час назад

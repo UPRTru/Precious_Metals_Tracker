@@ -1,5 +1,6 @@
 package prices.model;
 
+import com.precious.shared.enums.Banks;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
@@ -68,8 +69,8 @@ public class CurrencyPrice implements Priced {
     }
 
     @Override
-    public String getBank() {
-        return bank;
+    public Banks getBank() {
+        return Banks.valueOf(bank);
     }
 
     @Override

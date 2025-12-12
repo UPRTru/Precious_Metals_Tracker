@@ -20,8 +20,6 @@ import java.util.HashMap;
 @Component(MetalSberAgent.AGENT_NAME)
 public class MetalSberAgent implements Agent {
 
-    //todo рассчитывать стоимость на 1 грамм
-
     public static final String AGENT_NAME = "sber agent metal";
 
     private final AgentConfig agentConfig;
