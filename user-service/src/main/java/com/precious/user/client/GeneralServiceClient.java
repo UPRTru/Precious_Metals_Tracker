@@ -23,4 +23,12 @@ public class GeneralServiceClient {
                 .bodyValue(checkPrice)
                 .retrieve();
     }
+
+    public Long getLustUpdatePrices() {
+        return webClient.get()
+                .uri("/lust_update")
+                .retrieve()
+                .bodyToMono(Long.class)
+                .block();
+    }
 }

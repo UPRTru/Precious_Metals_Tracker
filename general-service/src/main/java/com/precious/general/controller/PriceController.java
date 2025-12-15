@@ -1,8 +1,11 @@
 package com.precious.general.controller;
 
+import com.precious.general.scheduler.PriceCheckScheduler;
 import com.precious.general.service.ServiceCheckPrice;
+import com.precious.shared.dto.CheckPrice;
 import net.minidev.json.JSONObject;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,7 +20,12 @@ public class PriceController {
     }
 
     @PostMapping("/check/{email}")
-    public void check(@RequestBody JSONObject jsonObject, @PathVariable String email) {
-        serviceCheckPrice.checkPrice(email, jsonObject);
+    public void check(@RequestBody CheckPrice checkPrice, @PathVariable String email) {
+        serviceCheckPrice.checkPrice(email, checkPrice);
+    }
+
+    @GetMapping("/lust_update")
+    public Long getLustUpdatePrices() {
+        return PriceCheckScheduler.lustUpdate;
     }
 }

@@ -1,6 +1,7 @@
 package com.precious.general.service;
 
 import com.precious.general.client.BankAgentClient;
+import com.precious.general.service.mail.ServiceEmail;
 import com.precious.shared.dto.CheckPrice;
 import com.precious.shared.dto.Price;
 import com.precious.shared.enums.Banks;
@@ -15,9 +16,12 @@ import java.time.Duration;
 public class ServiceCheckPrice {
 
     private final BankAgentClient bankAgentClient;
+    private final ServiceEmail serviceEmail;
 
-    public ServiceCheckPrice(BankAgentClient bankAgentClient) {
+    public ServiceCheckPrice(BankAgentClient bankAgentClient,
+                             ServiceEmail serviceEmail) {
         this.bankAgentClient = bankAgentClient;
+        this.serviceEmail = serviceEmail;
     }
 
     public void checkPrice(String email, CheckPrice checkPrice) {
@@ -49,6 +53,7 @@ public class ServiceCheckPrice {
     }
 
     private void sendEmail(String email) {
-
+//todo отправка письма
+        serviceEmail.sendEmail(email);
     }
 }

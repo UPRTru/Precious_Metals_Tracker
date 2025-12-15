@@ -49,4 +49,15 @@ public class ScheduledPrice {
     public CheckPrice getCheckPrice() {
         return new CheckPrice(Banks.valueOf(bank), TypePrice.valueOf(typePrice), CurrentPrice.valueOf(currentPrice), name, price);
     }
+
+    @Override
+    public String toString() {
+        return "ScheduledPrice{" +
+                ", bank='" + bank + '\'' +
+                ", typePrice='" + typePrice + '\'' +
+                ", currentPrice='" + currentPrice + '\'' +
+                ", name='" + name + '\'' +
+                ", price=" + price +
+                '}';
+    }
 }

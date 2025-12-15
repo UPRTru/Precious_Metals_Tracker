@@ -7,11 +7,13 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 @Component
 public class PriceCheckScheduler {
 
+    public static Long lustUpdate = Instant.now().toEpochMilli();
     private final BankAgentClient bankAgentClient;
 
     public PriceCheckScheduler(BankAgentClient bankAgentClient) {
@@ -23,6 +25,7 @@ public class PriceCheckScheduler {
         try {
             List<Price> allMetalPriceList = bankAgentClient.getAllMetal(Banks.SBER).block(Duration.ofSeconds(10));
             List<Price> allCurrencyPriceList = bankAgentClient.getAllCurrency(Banks.SBER).block(Duration.ofSeconds(10));
+            lustUpdate = Instant.now().toEpochMilli();
             //todo выводить данные на фронт
         } catch (Exception e) {
             System.err.println("Ошибка при проверке цен: " + e.getMessage());

@@ -17,8 +17,8 @@
         .then(data => {
             const div = document.getElementById('summary');
             div.innerHTML = `
-          <p><strong>Всего пользователей:</strong> ${data.totalUsers || 0}</p>
-          ${data.lastLogin ? `<p><strong>Последний вход:</strong> ${new Date(data.lastLogin).toLocaleString()}</p>` : ''}
+          <p><strong>Ваши запросы: </strong> ${data.schedulePrices || 0}</p>
+          ${data.lastUpdate ? `<p><strong>Последнее обновление цен: </strong> ${new Date(data.lastUpdate).toLocaleString()}</p>` : ''}
         `;
         });
 </script>
