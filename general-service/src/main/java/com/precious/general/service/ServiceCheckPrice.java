@@ -2,6 +2,7 @@ package com.precious.general.service;
 
 import com.precious.general.client.BankAgentClient;
 import com.precious.general.service.mail.ServiceEmail;
+import com.precious.general.service.mail.ServiceEmail.Message;
 import com.precious.shared.dto.CheckPrice;
 import com.precious.shared.dto.Price;
 import com.precious.shared.enums.Banks;
@@ -33,7 +34,7 @@ public class ServiceCheckPrice {
         Price newPrice = getNewPrice(typePrice, bank, name);
 
         if (priceComparison(currentPrice, price, newPrice.buyPrice(), newPrice.sellPrice())) {
-            sendEmail(email);
+            sendEmail(email, new Message(name, newPrice.buyPrice(), newPrice.sellPrice()));
         }
     }
 
@@ -52,8 +53,8 @@ public class ServiceCheckPrice {
         };
     }
 
-    private void sendEmail(String email) {
+    private void sendEmail(String email, Message message) {
 //todo отправка письма
-        serviceEmail.sendEmail(email);
+        serviceEmail.sendEmail(email, message);
     }
 }
